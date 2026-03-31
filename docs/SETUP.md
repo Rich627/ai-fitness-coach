@@ -22,8 +22,6 @@ If you don't have Python 3.8+:
 
 - **macOS**: `brew install python3` (requires [Homebrew](https://brew.sh/); install Homebrew first if needed)
 - **Ubuntu/Debian**: `sudo apt update && sudo apt install -y python3`
-- **Windows WSL**: `sudo apt update && sudo apt install -y python3` (inside your WSL terminal)
-- **Windows native**: Download from [python.org](https://www.python.org/downloads/) -- but WSL is recommended for this project
 
 ### Claude Code CLI
 
@@ -329,28 +327,6 @@ After setup, verify each component is working:
 - **Cron**: Pre-installed and running on most distributions. Verify with `systemctl status cron`
 - **Permissions**: If you get permission errors, check file ownership: `ls -la src/fitness-cli.py`
 
-### Windows (WSL)
-
-AI Fitness Coach is designed for Unix-like systems. On Windows, use WSL (Windows Subsystem for Linux):
-
-1. **Install WSL**: Open PowerShell as Administrator and run:
-   ```powershell
-   wsl --install
-   ```
-2. **Open WSL terminal**: Search for "Ubuntu" in the Start menu
-3. **Inside WSL**, follow the Linux setup instructions above
-4. **File access**: Your WSL files live at `\\wsl$\Ubuntu\home\yourname\` from Windows Explorer
-5. **Cron in WSL**: You may need to start the cron service manually:
-   ```bash
-   sudo service cron start
-   ```
-   To auto-start cron when WSL opens, add it to your `~/.bashrc`:
-   ```bash
-   echo 'sudo service cron start 2>/dev/null' >> ~/.bashrc
-   ```
-
-> **Note**: The cron service does not run when WSL is closed. For 24/7 reminders on Windows, consider using a cloud VM instead (see [AWS_SETUP.md](AWS_SETUP.md)).
-
 ---
 
 ## Troubleshooting
@@ -404,8 +380,7 @@ chmod +x cron/workout-reminder.sh
 2. **Check the log file**: `cat cron.log` -- look for errors
 3. **Ensure full paths** are used in the crontab entry (the installer does this automatically)
 4. **macOS**: Grant cron Full Disk Access in **System Settings > Privacy & Security**
-5. **WSL**: Start the cron service: `sudo service cron start`
-6. **Test the script manually**:
+5. **Test the script manually**:
    ```bash
    AFC_DIR=$(pwd) ./cron/workout-reminder.sh
    ```
@@ -445,3 +420,15 @@ chmod +x cron/workout-reminder.sh
 1. Make sure you edited the right file: `cat config/profile.json`
 2. Check for JSON syntax errors: `python3 -c "import json; json.load(open('config/profile.json'))"`
 3. The file should parse without errors. If you see an error, fix the JSON syntax (missing commas, quotes, brackets, etc.)
+
+---
+
+## Limitations and Warnings
+
+- **Requires Anthropic API key** -- Claude Code requires an active Claude Pro, Team, or Enterprise subscription, or API credits. This is a recurring cost.
+- **Requires an always-on machine** -- For WhatsApp integration and cron reminders, you need a machine that stays running (your computer or a cloud VM at ~$3-5/month). See [AWS_SETUP.md](AWS_SETUP.md).
+- **WhatsApp linked device limitations** -- The WhatsApp plugin links as an additional device to your account. WhatsApp allows a limited number of linked devices, and the link may need to be re-established periodically.
+- **Nutrition estimates are approximations** -- AI-generated calorie and macro estimates are based on general knowledge, not certified nutritional databases. They are useful for tracking trends but should not be treated as exact values.
+- **Not a substitute for professional advice** -- This tool is not a replacement for professional medical, nutritional, or fitness advice. Consult a qualified professional before starting any new exercise or diet program.
+- **Voice transcription accuracy varies** -- Voice message transcription (via Whisper) works best in quiet environments. Background noise, accents, and uncommon terminology may reduce accuracy.
+- **Supported platforms** -- macOS and Linux only. Windows is not supported.

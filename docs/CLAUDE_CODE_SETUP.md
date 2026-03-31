@@ -41,7 +41,6 @@ claude --version
 If you do not have Node.js, install it first:
 - **macOS:** `brew install node`
 - **Ubuntu/Debian:** `curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt install -y nodejs`
-- **Windows:** Download from [nodejs.org](https://nodejs.org/)
 
 **Authenticate Claude Code:**
 
