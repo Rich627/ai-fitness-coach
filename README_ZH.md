@@ -1,173 +1,257 @@
 # AI Fitness Coach
 
-**AI 驅動的 WhatsApp 健身教練** -- 運動追蹤、營養記錄、智慧建議。
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
+[![Built with Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-blueviolet.svg)](https://docs.anthropic.com/en/docs/claude-code)
 
-AI Fitness Coach 是一個住在你 WhatsApp 群組裡的個人健身代理。它追蹤你的運動、營養、睡眠和體重，然後用這些數據給你智慧的運動建議、督促你保持規律，並透過 cron 排程發送個人化的提醒訊息。
+**住在 WhatsApp 裡的 AI 私人教練。** 追蹤運動、營養、睡眠和體重，然後獲得智慧建議、個人化提醒和督促，全部透過聊天完成。
 
-基於 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 與 WhatsApp 頻道外掛建構。
+> 設定完成後，一切都在 WhatsApp 裡進行。更改目標、設定提醒、追蹤飲食 -- 全部透過聊天。
+
+---
 
 ## 功能特色
 
-- **運動追蹤** -- 記錄訓練部位、時長、地點和動作
-- **智慧運動建議** -- AI 根據你最近沒練到的肌群自動推薦動作，並根據睡眠數據調整訓練強度
-- **漸進式超負荷追蹤** -- 記錄每個動作的重量/組數/次數，查看力量趨勢
-- **營養記錄** -- 追蹤每餐的卡路里、蛋白質、碳水化合物、脂肪
-- **體重追蹤** -- 每日體重記錄，查看趨勢
-- **睡眠追蹤** -- 記錄睡眠時間與品質，影響運動強度建議
-- **週計劃** -- 智慧重排程，顯示哪些肌群已經過期
-- **自動提醒** -- 透過 Cron 排程的 WhatsApp 訊息，檢查你的數據後發送情境感知的提醒
+- **靈魂系統** -- 透過簡單的設定檔自訂教練的個性、語氣和行為
+- **語音訊息** -- 在 WhatsApp 傳送語音；透過 Whisper 轉錄並由教練理解
+- **照片辨識** -- 拍一張餐點照片；Claude Vision 自動估算卡路里和巨量營養素
+- **多語言** -- 支援任何聊天語言（中文、英文、西班牙文等）
+- **智慧運動建議** -- AI 根據你最近沒練到的肌群選擇動作，並依據睡眠品質調整強度
+- **營養追蹤** -- 透過描述或照片記錄餐點；追蹤卡路里、蛋白質、碳水化合物和脂肪
+- **睡眠追蹤** -- 記錄睡眠時間與品質；影響運動強度建議
+- **漸進式超負荷** -- 追蹤每個動作的重量/組數/次數，查看力量趨勢
+- **Cron 提醒** -- 自動的 WhatsApp 訊息，檢查你的數據後發送情境感知的提醒（早晚各一次）
 - **動作資料庫** -- 70+ 個動作，按肌群和器材分類
 
-## 快速開始（5 分鐘）
+---
 
-### 先決條件
+## 運作方式
 
-- **Python 3.8+**（只使用標準函式庫，不需要安裝套件）
-- **Claude Code** CLI（[安裝指南](https://docs.anthropic.com/en/docs/claude-code/getting-started)）
-- Claude Code 的 **WhatsApp 頻道外掛**（用於 WhatsApp 整合）
+```mermaid
+flowchart LR
+    User["使用者\n(WhatsApp)"]
+    CC["Claude Code\n+ WhatsApp 外掛"]
+    CLI["fitness-cli.py"]
+    DB["SQLite 資料庫\n(fitness.db)"]
+    Cron["Cron 排程\n(提醒)"]
 
-### 安裝
+    User <-->|訊息、照片、語音| CC
+    CC -->|執行指令| CLI
+    CLI <-->|讀寫| DB
+    Cron -->|透過 CLI 取得狀態| DB
+    Cron -->|透過 Claude 發送提醒| CC
+```
+
+1. 你在 WhatsApp 群組傳送訊息（文字、照片或語音）
+2. Claude Code（搭配 WhatsApp 外掛）接收並解讀訊息
+3. 教練個性（定義在群組設定檔中）處理訊息 -- 估算巨量營養素、理解運動報告等
+4. `fitness-cli.py` 將數據記錄到本地 SQLite 資料庫或從中查詢
+5. Claude 將回應格式化為友善的 WhatsApp 回覆
+6. Cron 排程每天執行兩次，取得你的狀態，發送個人化提醒
+
+---
+
+## 快速開始
+
+### 1. 安裝 Claude Code
 
 ```bash
-# 複製專案
+npm install -g @anthropic-ai/claude-code
+claude --version
+```
+
+### 2. 安裝 WhatsApp 外掛
+
+```bash
+# 在 Claude Code 工作階段中：
+/plugin install whatsapp@whatsapp-claude-plugin
+```
+
+### 3. 複製並設定
+
+```bash
 git clone https://github.com/moltbot0912/ai-fitness-coach.git
 cd ai-fitness-coach
-
-# 執行設定腳本
 chmod +x setup.sh
 ./setup.sh
 ```
 
-設定腳本會：
-1. 檢查 Python 版本
-2. 從範本建立設定檔
-3. 初始化 SQLite 資料庫
-4. 引導你自訂個人檔案
-5. 選擇性安裝 cron 排程
-
-### 手動設定
+### 4. 開始聊天
 
 ```bash
-# 1. 複製設定範本
-cp config/.env.example .env
-cp config/profile.example.json config/profile.json
-
-# 2. 編輯你的個人檔案
-nano config/profile.json  # 設定姓名、目標、健身器材等
-
-# 3. 初始化資料庫
-python3 src/db_manager.py data/fitness.db
-
-# 4. 測試
-python3 src/fitness-cli.py quick-status
+claude --channels plugin:whatsapp@whatsapp-claude-plugin
 ```
 
-## CLI 指令
+在 WhatsApp 群組傳送訊息，教練就會回應。詳細設定說明請參閱 [docs/SETUP.md](docs/SETUP.md) 和 [docs/CLAUDE_CODE_SETUP.md](docs/CLAUDE_CODE_SETUP.md)。
 
-### 記錄數據
+---
+
+## 使用示範
+
+以下是 WhatsApp 群組中的典型互動：
+
+### 餐點照片辨識
+
+```
+你：      [傳送一張烤雞胸肉飯配蔬菜的照片]
+
+教練：    我看到烤雞胸肉配飯和綜合蔬菜！
+          我的估算：
+          - ~520 大卡 | 蛋白質 42g | 碳水 55g | 脂肪 12g
+
+          今日累計：1,040 / 2,200 大卡 | 78 / 120g 蛋白質
+          還剩大約 1,160 大卡 -- 晚點來杯蛋白奶昔
+          幫助你達標？
+```
+
+### 運動建議
+
+```
+你：      今天練什麼？
+
+教練：    根據你的紀錄，你已經 5 天沒練背了，
+          肩膀也 4 天沒練。你最近睡眠不錯（平均 7.5 小時），
+          所以可以加大訓練量。
+
+          這是一個 40 分鐘的背 + 肩在家健身的計劃：
+
+          熱身（5 分鐘）：
+          - 手臂繞圈、彈力帶拉開
+
+          背部（20 分鐘）：
+          - 槓鈴划船：4 x 10 @ 中等重量
+          - 啞鈴划船：3 x 12 每邊
+          - 引體向上：3 x 最大次數
+
+          肩膀（10 分鐘）：
+          - 啞鈴肩推：3 x 10
+          - 側平舉：3 x 15
+
+          收操（5 分鐘）：
+          - 伸展背闊肌、斜方肌、後三角肌
+```
+
+### 每日提醒
+
+```
+[上午 10:00 -- 自動早晨提醒]
+
+教練：    早安！距離你上次運動（胸部，家裡健身房）已經
+          過了 2 天。昨晚睡得怎麼樣？今天練背或腿
+          是不錯的選擇 -- 說一聲我就幫你規劃！
+```
+
+---
+
+## 常見問題
+
+### 需要付費的 API 金鑰嗎？
+
+需要。Claude Code 需要 Anthropic API 訂閱或 Claude Pro/Team 方案。AI Fitness Coach 本身是免費開源的，但底層的 Claude Code CLI 需要認證和 API 額度。
+
+### 可以不用 WhatsApp 嗎？
+
+可以。CLI（`fitness-cli.py`）可以完全獨立運作。你可以直接在終端機記錄飲食、運動、睡眠和體重。WhatsApp 整合是可選的，它增加了對話式介面和自動提醒功能。
+
+### 我的數據存在哪裡？
+
+所有數據都存在本地的 SQLite 資料庫檔案（`data/fitness.db`）。除了 Claude API 呼叫用於生成回應外，沒有任何數據傳送到外部伺服器。你的健身數據留在你的機器上。
+
+### AI 的巨量營養素估算有多準確？
+
+教練使用 Claude 的通用知識，從食物描述和照片來估算巨量營養素。估算是合理的近似值，但不是實驗室級的精確。要更準確，請提供具體數量（例如「200g 雞胸肉」而不是「一些雞肉」）。你也可以直接提供確切的營養素數值來覆蓋估算。
+
+### 如何備份我的數據？
+
+複製 `data/fitness.db` 檔案即可。這個檔案包含你所有的運動、營養記錄、體重歷史和睡眠數據。自動備份說明請參閱 [docs/AWS_SETUP.md](docs/AWS_SETUP.md)。
+
+### 多人可以使用同一個安裝嗎？
+
+目前系統設計為每個安裝一位使用者。每個人應該有自己的檔案和資料庫。同一個 WhatsApp 群組中的多人會共用一個機器人，但數據追蹤是按安裝的。
+
+---
+
+## 限制與警告
+
+使用 AI Fitness Coach 之前，請注意以下事項：
+
+- **需要 Anthropic API 金鑰** -- Claude Code 需要有效的 Claude Pro、Team 或 Enterprise 訂閱，或 API 額度。這是持續性費用。
+- **需要常駐運行的機器** -- WhatsApp 整合和 cron 提醒需要一台持續運行的機器（你的電腦或每月約 $3-5 美元的雲端 VM）。請參閱 [docs/AWS_SETUP.md](docs/AWS_SETUP.md)。
+- **WhatsApp 已連結裝置限制** -- WhatsApp 外掛以附加裝置的形式連結到你的帳號。WhatsApp 允許有限數量的已連結裝置，且連結可能需要定期重新建立。
+- **營養估算為近似值** -- AI 生成的卡路里和巨量營養素估算基於通用知識，非認證營養資料庫。它們適合追蹤趨勢，但不應視為精確數值。
+- **不能替代專業建議** -- 此工具不能替代專業的醫療、營養或健身建議。在開始任何新的運動或飲食計劃之前，請諮詢合格的專業人士。
+- **語音轉錄準確度因環境而異** -- 語音訊息轉錄（透過 Whisper）在安靜環境中效果最佳。背景噪音、口音和不常見的術語可能降低準確度。
+
+---
+
+## 支援平台
+
+| 平台 | 狀態 |
+|---|---|
+| **macOS** | 完整支援 |
+| **Linux**（Ubuntu/Debian） | 完整支援 |
+
+---
+
+## 開發者專區
+
+### 架構
+
+系統以 Python CLI（`fitness-cli.py`）為核心，搭配 SQLite 資料庫，由 Claude Code 與 WhatsApp 頻道外掛協調運作。教練個性定義在群組設定檔中（「靈魂」系統）。
+
+完整的架構總覽、元件詳情、資料庫結構和數據流程圖，請參閱 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
+
+### CLI 指令參考
+
+所有健身操作透過 `python3 src/fitness-cli.py <command>` 執行。指令包括記錄（飲食、體重、運動、睡眠、動作）、查詢（狀態、摘要、趨勢）和智慧功能（運動建議、週計劃、力量趨勢）。
+
+完整的指令參考、參數和範例輸出，請參閱 [docs/COMMANDS.md](docs/COMMANDS.md)。
+
+### 開發環境設定
 
 ```bash
-# 記錄一餐
-python3 src/fitness-cli.py log-food "雞胸肉飯" 550 45 60 12
+# 複製並設定
+git clone https://github.com/moltbot0912/ai-fitness-coach.git
+cd ai-fitness-coach
+./setup.sh
 
-# 記錄體重
-python3 src/fitness-cli.py log-weight 70.5
+# 執行 CLI
+python3 src/fitness-cli.py --help
 
-# 記錄運動
-python3 src/fitness-cli.py log-workout "健身房" "胸" 40 "臥推、啞鈴飛鳥、伏地挺身"
-
-# 記錄睡眠
-python3 src/fitness-cli.py log-sleep 2025-01-15 23:30 07:00 7.5 --quality good
-
-# 記錄單一動作（漸進式超負荷追蹤）
-python3 src/fitness-cli.py log-exercise "Bench Press" "Chest" 135 3 10 --rpe 8
+# 執行測試
+python3 -m pytest tests/
 ```
 
-### 查詢數據
+程式碼規範、貢獻指南和新功能構想，請參閱 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
-```bash
-# 快速狀態總覽
-python3 src/fitness-cli.py quick-status
+### 專案結構
 
-# 今日營養
-python3 src/fitness-cli.py daily-summary
-
-# 過去 7 天總覽
-python3 src/fitness-cli.py weekly-summary
-
-# 體重趨勢
-python3 src/fitness-cli.py weight-trend
-
-# 睡眠歷史
-python3 src/fitness-cli.py sleep-trend
-
-# 上次運動詳情
-python3 src/fitness-cli.py last-workout
+```
+ai-fitness-coach/
+  src/
+    fitness-cli.py             # 主要 CLI，所有健身操作
+    db_manager.py              # SQLite 資料庫層
+    exercises.md               # 動作資料庫（70+ 個動作）
+  config/
+    .env.example               # 環境變數範本
+    profile.example.json       # 使用者檔案範本
+    group-config.example.md    # WhatsApp 群組個性範本
+  cron/
+    workout-reminder.sh        # 自動 WhatsApp 提醒腳本
+    install-cron.sh            # Cron 排程安裝程式
+  docs/
+    ARCHITECTURE.md            # 系統架構總覽
+    AWS_SETUP.md               # 雲端部署指南
+    COMMANDS.md                # CLI 指令參考
+    SETUP.md                   # 一般設定指南
+    CLAUDE_CODE_SETUP.md       # Claude Code + WhatsApp 外掛指南
+  data/                        # SQLite 資料庫（git-ignored）
+  setup.sh                     # 一鍵設定腳本
+  CONTRIBUTING.md              # 貢獻指南
+  LICENSE                      # MIT 授權
 ```
 
-### 智慧功能
-
-```bash
-# 取得運動建議（自動選擇你最近沒練的肌群）
-python3 src/fitness-cli.py suggest-workout
-
-# 指定時長或重點
-python3 src/fitness-cli.py suggest-workout --duration 30 --focus chest
-
-# 週計劃與補課建議
-python3 src/fitness-cli.py weekly-plan
-
-# 所有動作的力量趨勢
-python3 src/fitness-cli.py strength-trend
-
-# 特定動作的力量趨勢
-python3 src/fitness-cli.py strength-trend "Bench Press"
-```
-
-## 部署選項
-
-### 方案 A：本機電腦（需要常開機器）
-
-適合有一台 Mac/Linux 機器持續運行的情況。
-
-1. 依照上方快速開始操作
-2. 安裝 cron 排程：`./cron/install-cron.sh`
-3. 保持機器開著，cron 提醒才會觸發
-
-### 方案 B：雲端 VM（每月 $3-5 美元）
-
-更穩定可靠。詳見 [docs/AWS_SETUP.md](docs/AWS_SETUP.md)。
-
-**簡要步驟：**
-1. 開一個 AWS Lightsail 或 EC2 t3.micro（或任何 $5/月的 VPS）
-2. 安裝 Python 3、Claude Code 和 WhatsApp 外掛
-3. Clone 這個 repo 並執行 `setup.sh`
-4. 安裝 cron 排程
-5. 完成 -- 即使你的筆電關機，提醒也會 24/7 運行
-
-## 設定
-
-### 個人檔案（`config/profile.json`）
-
-你的健身檔案控制運動建議、營養目標和可用器材。
-
-重要欄位：
-- `user_name` -- 你的名字（用在提醒訊息中）
-- `fitness_goals.primary_goal` -- 影響組數/次數建議
-- `nutrition_targets` -- 每日卡路里和巨量營養素目標
-- `workout_preferences.frequency_per_week` -- 目標運動頻率（如 "3-4"）
-- `workout_preferences.gym_locations` -- 你的器材（決定建議哪些動作）
-- `workout_preferences.preferred_muscle_group_rotation` -- 要輪替的肌群
-
-### 環境變數（`.env`）
-
-| 變數 | 預設值 | 說明 |
-|---|---|---|
-| `AFC_DB_PATH` | `data/fitness.db` | SQLite 資料庫位置 |
-| `AFC_PROFILE_PATH` | `config/profile.json` | 個人檔案位置 |
-| `AFC_EXERCISES_PATH` | `src/exercises.md` | 動作資料庫位置 |
-| `AFC_TIMEZONE` | （系統預設） | 你的時區 |
-| `AFC_WHATSAPP_CHAT_ID` | （無） | WhatsApp 群組 ID |
+---
 
 ## 授權
 
