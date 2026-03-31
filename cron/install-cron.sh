@@ -9,14 +9,14 @@
 
 set -euo pipefail
 
-KAI_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-REMINDER_SCRIPT="${KAI_DIR}/cron/workout-reminder.sh"
-CRON_LOG="${KAI_DIR}/cron.log"
+AFC_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+REMINDER_SCRIPT="${AFC_DIR}/cron/workout-reminder.sh"
+CRON_LOG="${AFC_DIR}/cron.log"
 
 echo "AI Fitness Coach -- Cron Job Installer"
 echo "================================="
 echo ""
-echo "Project directory: ${KAI_DIR}"
+echo "Project directory: ${AFC_DIR}"
 echo "Reminder script:   ${REMINDER_SCRIPT}"
 echo "Log file:          ${CRON_LOG}"
 echo ""
@@ -29,15 +29,15 @@ fi
 chmod +x "$REMINDER_SCRIPT"
 
 # Check .env for required config
-if [ ! -f "${KAI_DIR}/.env" ]; then
-    echo "Warning: No .env file found. The cron job needs KAI_WHATSAPP_CHAT_ID."
+if [ ! -f "${AFC_DIR}/.env" ]; then
+    echo "Warning: No .env file found. The cron job needs AFC_WHATSAPP_CHAT_ID."
     echo "Create .env from config/.env.example first."
     echo ""
 fi
 
 # Define cron entries
-MORNING_CRON="0 10 * * * KAI_DIR=${KAI_DIR} ${REMINDER_SCRIPT} >> ${CRON_LOG} 2>&1"
-EVENING_CRON="30 19 * * * KAI_DIR=${KAI_DIR} ${REMINDER_SCRIPT} >> ${CRON_LOG} 2>&1"
+MORNING_CRON="0 10 * * * AFC_DIR=${AFC_DIR} ${REMINDER_SCRIPT} >> ${CRON_LOG} 2>&1"
+EVENING_CRON="30 19 * * * AFC_DIR=${AFC_DIR} ${REMINDER_SCRIPT} >> ${CRON_LOG} 2>&1"
 
 echo "The following cron jobs will be added:"
 echo ""

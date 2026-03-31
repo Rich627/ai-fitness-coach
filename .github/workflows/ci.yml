@@ -27,52 +27,52 @@ jobs:
           mkdir -p data
 
       - name: Initialize database
-        run: python3 src/db_manager.py data/kai_health.db
+        run: python3 src/db_manager.py data/fitness.db
 
       - name: Test CLI help
-        run: python3 src/kai-cli.py --help
+        run: python3 src/fitness-cli.py --help
 
       - name: Test quick-status (empty DB)
-        run: python3 src/kai-cli.py quick-status
+        run: python3 src/fitness-cli.py quick-status
 
       - name: Test log-weight
-        run: python3 src/kai-cli.py log-weight 70.0
+        run: python3 src/fitness-cli.py log-weight 70.0
 
       - name: Test log-food
-        run: python3 src/kai-cli.py log-food "Test meal" 500 30 50 15
+        run: python3 src/fitness-cli.py log-food "Test meal" 500 30 50 15
 
       - name: Test daily-summary
-        run: python3 src/kai-cli.py daily-summary
+        run: python3 src/fitness-cli.py daily-summary
 
       - name: Test log-workout
-        run: python3 src/kai-cli.py log-workout "Test Gym" "Chest" 30 "Push-ups"
+        run: python3 src/fitness-cli.py log-workout "Test Gym" "Chest" 30 "Push-ups"
 
       - name: Test log-sleep
-        run: python3 src/kai-cli.py log-sleep "2025-01-01" "23:00" "07:00" 8.0 --quality good
+        run: python3 src/fitness-cli.py log-sleep "2025-01-01" "23:00" "07:00" 8.0 --quality good
 
       - name: Test log-exercise
-        run: python3 src/kai-cli.py log-exercise "Bench Press" "Chest" 135 3 10 --rpe 8
+        run: python3 src/fitness-cli.py log-exercise "Bench Press" "Chest" 135 3 10 --rpe 8
 
       - name: Test suggest-workout
-        run: python3 src/kai-cli.py suggest-workout --duration 30
+        run: python3 src/fitness-cli.py suggest-workout --duration 30
 
       - name: Test weekly-plan
-        run: python3 src/kai-cli.py weekly-plan
+        run: python3 src/fitness-cli.py weekly-plan
 
       - name: Test weekly-summary
-        run: python3 src/kai-cli.py weekly-summary
+        run: python3 src/fitness-cli.py weekly-summary
 
       - name: Test weight-trend
-        run: python3 src/kai-cli.py weight-trend
+        run: python3 src/fitness-cli.py weight-trend
 
       - name: Test sleep-trend
-        run: python3 src/kai-cli.py sleep-trend
+        run: python3 src/fitness-cli.py sleep-trend
 
       - name: Test last-workout
-        run: python3 src/kai-cli.py last-workout
+        run: python3 src/fitness-cli.py last-workout
 
       - name: Test strength-trend (all)
-        run: python3 src/kai-cli.py strength-trend
+        run: python3 src/fitness-cli.py strength-trend
 
       - name: Test strength-trend (specific)
-        run: python3 src/kai-cli.py strength-trend "Bench Press"
+        run: python3 src/fitness-cli.py strength-trend "Bench Press"

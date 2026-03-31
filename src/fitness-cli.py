@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-kai-cli.py -- AI Fitness Coach CLI tool.
+fitness-cli.py -- AI Fitness Coach CLI tool.
 
 Log and query health/fitness data from the command line.
 Used by the WhatsApp channel agent (via Claude Code) or directly by the user.
 
 Configuration (in order of precedence):
   1. Command-line flags: --config, --db, --profile, --exercises
-  2. Environment variables: KAI_DB_PATH, KAI_PROFILE_PATH, KAI_EXERCISES_PATH, KAI_TIMEZONE
+  2. Environment variables: AFC_DB_PATH, AFC_PROFILE_PATH, AFC_EXERCISES_PATH, AFC_TIMEZONE
   3. .env file in the project root
   4. Sensible defaults (files in the same directory as this script)
 """
@@ -41,10 +41,10 @@ if os.path.isfile(_env_file):
                     os.environ[_key] = _val
 
 # Resolve paths from env or defaults
-DB_PATH = os.environ.get("KAI_DB_PATH", os.path.join(PROJECT_DIR, "data", "kai_health.db"))
-PROFILE_PATH = os.environ.get("KAI_PROFILE_PATH", os.path.join(PROJECT_DIR, "config", "profile.json"))
-EXERCISES_PATH = os.environ.get("KAI_EXERCISES_PATH", os.path.join(BASE_DIR, "exercises.md"))
-TIMEZONE = os.environ.get("KAI_TIMEZONE", "")
+DB_PATH = os.environ.get("AFC_DB_PATH", os.path.join(PROJECT_DIR, "data", "fitness.db"))
+PROFILE_PATH = os.environ.get("AFC_PROFILE_PATH", os.path.join(PROJECT_DIR, "config", "profile.json"))
+EXERCISES_PATH = os.environ.get("AFC_EXERCISES_PATH", os.path.join(BASE_DIR, "exercises.md"))
+TIMEZONE = os.environ.get("AFC_TIMEZONE", "")
 
 # Import db_manager from the same directory
 sys.path.insert(0, BASE_DIR)
@@ -763,9 +763,9 @@ def main():
     )
 
     # Global options
-    parser.add_argument("--db", default=None, help="Path to SQLite database (overrides KAI_DB_PATH)")
-    parser.add_argument("--profile", default=None, help="Path to profile.json (overrides KAI_PROFILE_PATH)")
-    parser.add_argument("--exercises", default=None, help="Path to exercises.md (overrides KAI_EXERCISES_PATH)")
+    parser.add_argument("--db", default=None, help="Path to SQLite database (overrides AFC_DB_PATH)")
+    parser.add_argument("--profile", default=None, help="Path to profile.json (overrides AFC_PROFILE_PATH)")
+    parser.add_argument("--exercises", default=None, help="Path to exercises.md (overrides AFC_EXERCISES_PATH)")
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 

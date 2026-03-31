@@ -9,7 +9,7 @@
 |                                                                   |
 |  +-----------+     +-------------------+     +----------------+   |
 |  |           |     |                   |     |                |   |
-|  |  WhatsApp +---->+ Claude Code +     +---->+ kai-cli.py     |   |
+|  |  WhatsApp +---->+ Claude Code +     +---->+ fitness-cli.py     |   |
 |  |  (User)   |     | WhatsApp Plugin   |     | (CLI)          |   |
 |  |           |     |                   |     |                |   |
 |  +-----------+     +--------+----------+     +-------+--------+   |
@@ -18,13 +18,13 @@
 |                    +--------+----------+     +-------+--------+   |
 |                    |                   |     |                |   |
 |                    | group-config.md   |     | db_manager.py  |   |
-|                    | (Kai persona +    |     | (SQLite layer) |   |
+|                    | (Coach persona +  |     | (SQLite layer) |   |
 |                    |  tool definitions)|     |                |   |
 |                    +-------------------+     +-------+--------+   |
 |                                                      |            |
 |  +-----------+                               +-------+--------+   |
 |  |           |                               |                |   |
-|  |  Cron Job +----> workout-reminder.sh ---->+ kai_health.db  |   |
+|  |  Cron Job +----> workout-reminder.sh ---->+ fitness.db  |   |
 |  |  (daily)  |     (fetches status,          | (SQLite file)  |   |
 |  |           |      sends via Claude)        |                |   |
 |  +-----------+                               +----------------+   |
@@ -42,13 +42,13 @@
 
 | Component | File | Role |
 |---|---|---|
-| CLI Interface | `src/kai-cli.py` | Command-line tool for all data operations |
+| CLI Interface | `src/fitness-cli.py` | Command-line tool for all data operations |
 | Database Layer | `src/db_manager.py` | SQLite CRUD operations |
-| Database | `data/kai_health.db` | Local SQLite database (all user data) |
+| Database | `data/fitness.db` | Local SQLite database (all user data) |
 | Exercise Database | `src/exercises.md` | 70+ exercises by muscle group and equipment |
 | User Profile | `config/profile.json` | Goals, equipment, nutrition targets |
 | Environment Config | `.env` | Paths, timezone, WhatsApp chat ID |
-| Group Config | `config/group-config.example.md` | Kai's WhatsApp persona and tool definitions |
+| Group Config | `config/group-config.example.md` | WhatsApp persona and tool definitions |
 | Cron Reminder | `cron/workout-reminder.sh` | Automated WhatsApp reminder script |
 | Cron Installer | `cron/install-cron.sh` | Installs cron entries for reminders |
 | Setup Script | `setup.sh` | One-click project setup |
@@ -57,7 +57,7 @@
 
 ## Components (Detailed)
 
-### 1. kai-cli.py (CLI Interface)
+### 1. fitness-cli.py (CLI Interface)
 
 The main entry point. It provides a command-line interface for all health/fitness operations.
 
@@ -77,7 +77,7 @@ The main entry point. It provides a command-line interface for all health/fitnes
 **Command categories:**
 
 ```
-kai-cli.py
+fitness-cli.py
   |
   +-- Logging Commands
   |     +-- log-food         (insert into food_logs)
@@ -109,7 +109,7 @@ Standalone SQLite database module. All functions accept a `db_path` argument -- 
 - **No global state or singletons**: Every function takes `db_path` as a parameter
 - **Returns Python dicts/lists**: Not raw database rows
 - **Graceful error handling**: Returns `None` or empty lists on error (never raises)
-- **Self-contained**: Can be used independently of `kai-cli.py`
+- **Self-contained**: Can be used independently of `fitness-cli.py`
 
 **Function reference:**
 
@@ -147,7 +147,7 @@ A Markdown file containing 70+ exercises organized by muscle group and equipment
 - Exercise Name
 ```
 
-This format is parsed by `_parse_exercises_md()` in kai-cli.py into a nested dictionary:
+This format is parsed by `_parse_exercises_md()` in fitness-cli.py into a nested dictionary:
 ```python
 {
   "Chest": {
@@ -183,9 +183,9 @@ Used by:
 
 A shell script that:
 1. Sources `.env` for configuration
-2. Runs `kai-cli.py quick-status` to get current fitness state
-3. Runs `kai-cli.py last-workout` to get last session details
-4. Passes both outputs to Claude Code with a prompt defining Kai's reminder persona
+2. Runs `fitness-cli.py quick-status` to get current fitness state
+3. Runs `fitness-cli.py last-workout` to get last session details
+4. Passes both outputs to Claude Code with a prompt defining the coach's reminder persona
 5. Claude generates a context-aware, personalized message
 6. Sends it to the WhatsApp group via the WhatsApp channel plugin
 
@@ -193,7 +193,7 @@ A shell script that:
 
 ## Database Schema
 
-All tables live in a single SQLite file: `data/kai_health.db`
+All tables live in a single SQLite file: `data/fitness.db`
 
 ### body_metrics
 
@@ -348,7 +348,7 @@ CREATE TABLE exercise_logs (
 User message: "I ate chicken breast with rice for lunch"
     |
     v
-Claude (Kai persona) receives message via WhatsApp plugin
+Claude (Coach persona) receives message via WhatsApp plugin
     |
     v
 Claude estimates macros from description:
@@ -357,20 +357,20 @@ Claude estimates macros from description:
   - Total estimate: ~525 kcal, 35g protein, 43g carbs, 4g fat
     |
     v
-Claude runs: kai-cli.py log-food "Chicken breast with rice" 525 35 43 4
+Claude runs: fitness-cli.py log-food "Chicken breast with rice" 525 35 43 4
     |
     v
-kai-cli.py -> db_manager.insert_food_log() -> SQLite INSERT into food_logs
+fitness-cli.py -> db_manager.insert_food_log() -> SQLite INSERT into food_logs
     |
     v
-kai-cli.py also calls get_daily_nutrition_summary() for today's totals
+fitness-cli.py also calls get_daily_nutrition_summary() for today's totals
     |
     v
 Output: "Logged food: Chicken breast with rice (525 kcal)
          Today's totals: 1,040 / 2,200 kcal | 78 / 120g protein"
     |
     v
-Claude formats response in friendly Kai tone -> WhatsApp reply
+Claude formats response in friendly coach tone -> WhatsApp reply
 ```
 
 ### Workout Suggestion Flow
@@ -379,10 +379,10 @@ Claude formats response in friendly Kai tone -> WhatsApp reply
 User: "What should I train today?"
     |
     v
-Claude runs: kai-cli.py suggest-workout --duration 40
+Claude runs: fitness-cli.py suggest-workout --duration 40
     |
     v
-kai-cli.py executes the suggestion engine:
+fitness-cli.py executes the suggestion engine:
     |
     1. Load profile.json
     |   -> equipment categories: ["Barbell", "Dumbbell", "Bodyweight"]
@@ -427,10 +427,10 @@ Claude formats into a friendly WhatsApp message
 User: "I weigh 71.2 kg today"
     |
     v
-Claude runs: kai-cli.py log-weight 71.2
+Claude runs: fitness-cli.py log-weight 71.2
     |
     v
-kai-cli.py -> db_manager.insert_body_metrics({"weight_kg": 71.2})
+fitness-cli.py -> db_manager.insert_body_metrics({"weight_kg": 71.2})
     |         -> SQLite INSERT into body_metrics
     |
     +-> db_manager.get_body_metrics_history(limit=3)
@@ -453,10 +453,10 @@ User: "Slept from 11:30 PM to 7 AM last night, felt good"
 Claude estimates: date=yesterday, bedtime=23:30, wake=07:00, duration=7.5h, quality=good
     |
     v
-Claude runs: kai-cli.py log-sleep 2025-01-15 23:30 07:00 7.5 --quality good
+Claude runs: fitness-cli.py log-sleep 2025-01-15 23:30 07:00 7.5 --quality good
     |
     v
-kai-cli.py -> db_manager.insert_sleep_log() -> SQLite INSERT into sleep_logs
+fitness-cli.py -> db_manager.insert_sleep_log() -> SQLite INSERT into sleep_logs
     |
     v
 Output: "Logged sleep: 2025-01-15 -- 23:30 to 07:00 (7.5h)"
@@ -468,10 +468,10 @@ Output: "Logged sleep: 2025-01-15 -- 23:30 to 07:00 (7.5h)"
 User: "Just did bench press, 135 lbs, 3 sets of 10, felt like RPE 8"
     |
     v
-Claude runs: kai-cli.py log-exercise "Bench Press" "Chest" 135 3 10 --rpe 8
+Claude runs: fitness-cli.py log-exercise "Bench Press" "Chest" 135 3 10 --rpe 8
     |
     v
-kai-cli.py -> db_manager.insert_exercise_log() -> SQLite INSERT into exercise_logs
+fitness-cli.py -> db_manager.insert_exercise_log() -> SQLite INSERT into exercise_logs
     |
     v
 Output: "Logged: Bench Press -- 135 lbs x 3 sets x 10 reps, RPE 8"
@@ -485,20 +485,20 @@ Cron daemon triggers at 10:00 AM
     v
 workout-reminder.sh
     |
-    +-> Sources .env (loads KAI_WHATSAPP_CHAT_ID, KAI_TIMEZONE, etc.)
+    +-> Sources .env (loads AFC_WHATSAPP_CHAT_ID, AFC_TIMEZONE, etc.)
     |
-    +-> python3 kai-cli.py quick-status
+    +-> python3 fitness-cli.py quick-status
     |     Output: "Last workout: 2025-01-14 - Chest (40 min)
     |              Last weight: 71.0 kg (2025-01-14)
     |              Today: 0 meals, 0 kcal
     |              Last sleep: 2025-01-14 -- 23:30 to 07:00 (7.5h) (good)"
     |
-    +-> python3 kai-cli.py last-workout
+    +-> python3 fitness-cli.py last-workout
     |     Output: "Date: 2025-01-14, Location: Home Gym,
     |              Target: Chest, Duration: 40 min"
     |
     +-> Passes both outputs to Claude Code with a reminder prompt:
-    |     "You are Kai, a fitness coach... Here is the user's data...
+    |     "You are a fitness coach... Here is the user's data...
     |      Send a personalized reminder to the workout group..."
     |
     v

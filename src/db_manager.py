@@ -680,7 +680,7 @@ def get_quick_status(db_path):
 if __name__ == "__main__":
     import sys
 
-    db = sys.argv[1] if len(sys.argv) > 1 else "kai_health.db"
+    db = sys.argv[1] if len(sys.argv) > 1 else "fitness.db"
     print(init_health_db(db))
     print(init_workout_db(db))
     print(f"Database ready: {db}")

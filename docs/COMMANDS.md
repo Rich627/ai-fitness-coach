@@ -1,6 +1,6 @@
 # CLI Command Reference
 
-All commands are run via `python3 src/kai-cli.py <command> [args]`.
+All commands are run via `python3 src/fitness-cli.py <command> [args]`.
 
 ---
 
@@ -16,7 +16,7 @@ These flags can be added to any command:
 
 Example:
 ```bash
-python3 src/kai-cli.py --db /custom/path.db quick-status
+python3 src/fitness-cli.py --db /custom/path.db quick-status
 ```
 
 ---
@@ -49,22 +49,22 @@ python3 src/kai-cli.py --db /custom/path.db quick-status
 
 ```bash
 # 1. Log your current weight
-python3 src/kai-cli.py log-weight 70.0
+python3 src/fitness-cli.py log-weight 70.0
 
 # 2. Log your first meal
-python3 src/kai-cli.py log-food "Breakfast oatmeal with banana" 350 12 55 8
+python3 src/fitness-cli.py log-food "Breakfast oatmeal with banana" 350 12 55 8
 
 # 3. Get a workout suggestion
-python3 src/kai-cli.py suggest-workout
+python3 src/fitness-cli.py suggest-workout
 
 # 4. After working out, log the session
-python3 src/kai-cli.py log-workout "Home Gym" "Chest" 35 "Push-ups 3x15, Dumbbell Press 3x10"
+python3 src/fitness-cli.py log-workout "Home Gym" "Chest" 35 "Push-ups 3x15, Dumbbell Press 3x10"
 
 # 5. Log individual exercises for strength tracking
-python3 src/kai-cli.py log-exercise "Dumbbell Press" "Chest" 40 3 10 --rpe 7
+python3 src/fitness-cli.py log-exercise "Dumbbell Press" "Chest" 40 3 10 --rpe 7
 
 # 6. Check your status
-python3 src/kai-cli.py quick-status
+python3 src/fitness-cli.py quick-status
 ```
 
 ---
@@ -91,7 +91,7 @@ log-food <description> <calories> <protein_g> <carbs_g> <fat_g> [--image PATH] [
 
 **Example:**
 ```bash
-python3 src/kai-cli.py log-food "Grilled chicken salad" 450 42 20 18 --notes "lunch"
+python3 src/fitness-cli.py log-food "Grilled chicken salad" 450 42 20 18 --notes "lunch"
 ```
 
 **Example output:**
@@ -107,7 +107,7 @@ Today's totals (2025-01-15):
 ```
 
 **Tips:**
-- When using via WhatsApp, you can just describe the food naturally (e.g., "I had a grilled chicken salad for lunch") and Kai will estimate the macros for you
+- When using via WhatsApp, you can just describe the food naturally (e.g., "I had a grilled chicken salad for lunch") and the coach will estimate the macros for you
 - For accuracy, include quantities: "200g chicken breast" is more precise than "some chicken"
 - Log snacks and drinks too -- they add up
 
@@ -127,7 +127,7 @@ log-weight <weight_kg>
 
 **Example:**
 ```bash
-python3 src/kai-cli.py log-weight 71.2
+python3 src/fitness-cli.py log-weight 71.2
 ```
 
 **Example output:**
@@ -166,7 +166,7 @@ log-workout <location> <target_muscle> <duration_min> <exercises_json> [--notes 
 
 **Example:**
 ```bash
-python3 src/kai-cli.py log-workout "Home Gym" "Chest" 35 "Bench Press 3x10, Push-ups 3x15"
+python3 src/fitness-cli.py log-workout "Home Gym" "Chest" 35 "Bench Press 3x10, Push-ups 3x15"
 ```
 
 **Example output:**
@@ -200,7 +200,7 @@ log-sleep <sleep_date> <bedtime> <wake_time> <duration_hours> [--quality good|ok
 
 **Example:**
 ```bash
-python3 src/kai-cli.py log-sleep 2025-01-15 23:30 07:00 7.5 --quality good
+python3 src/fitness-cli.py log-sleep 2025-01-15 23:30 07:00 7.5 --quality good
 ```
 
 **Example output:**
@@ -235,7 +235,7 @@ log-exercise <exercise_name> <muscle_group> <weight_lbs> <sets> <reps> [--rpe FL
 
 **Example:**
 ```bash
-python3 src/kai-cli.py log-exercise "Bench Press" "Chest" 135 3 10 --rpe 7.5
+python3 src/fitness-cli.py log-exercise "Bench Press" "Chest" 135 3 10 --rpe 7.5
 ```
 
 **Example output:**
@@ -264,7 +264,7 @@ Shows: last workout, latest weight, last sleep, today's meals and calories.
 
 **Example:**
 ```bash
-python3 src/kai-cli.py quick-status
+python3 src/fitness-cli.py quick-status
 ```
 
 **Example output:**
@@ -301,8 +301,8 @@ daily-summary [date]
 
 **Example:**
 ```bash
-python3 src/kai-cli.py daily-summary
-python3 src/kai-cli.py daily-summary 2025-01-14
+python3 src/fitness-cli.py daily-summary
+python3 src/fitness-cli.py daily-summary 2025-01-14
 ```
 
 **Example output:**
@@ -335,7 +335,7 @@ weekly-summary
 
 **Example:**
 ```bash
-python3 src/kai-cli.py weekly-summary
+python3 src/fitness-cli.py weekly-summary
 ```
 
 **Example output:**
@@ -373,8 +373,8 @@ weight-trend [entries]
 
 **Example:**
 ```bash
-python3 src/kai-cli.py weight-trend
-python3 src/kai-cli.py weight-trend 7
+python3 src/fitness-cli.py weight-trend
+python3 src/fitness-cli.py weight-trend 7
 ```
 
 **Example output:**
@@ -405,8 +405,8 @@ sleep-trend [days]
 
 **Example:**
 ```bash
-python3 src/kai-cli.py sleep-trend
-python3 src/kai-cli.py sleep-trend 14
+python3 src/fitness-cli.py sleep-trend
+python3 src/fitness-cli.py sleep-trend 14
 ```
 
 **Example output:**
@@ -433,7 +433,7 @@ last-workout
 
 **Example:**
 ```bash
-python3 src/kai-cli.py last-workout
+python3 src/fitness-cli.py last-workout
 ```
 
 **Example output:**
@@ -486,7 +486,7 @@ suggest-workout [--duration MINUTES] [--focus MUSCLE]
 
 **Example:**
 ```bash
-python3 src/kai-cli.py suggest-workout --duration 30 --focus push
+python3 src/fitness-cli.py suggest-workout --duration 30 --focus push
 ```
 
 **Example output:**
@@ -535,7 +535,7 @@ Shows:
 
 **Example:**
 ```bash
-python3 src/kai-cli.py weekly-plan
+python3 src/fitness-cli.py weekly-plan
 ```
 
 **Example output:**
@@ -582,10 +582,10 @@ strength-trend [exercise_name] [--limit N]
 **Examples:**
 ```bash
 # Summary of all exercises
-python3 src/kai-cli.py strength-trend
+python3 src/fitness-cli.py strength-trend
 
 # Detailed history for one exercise
-python3 src/kai-cli.py strength-trend "Bench Press" --limit 20
+python3 src/fitness-cli.py strength-trend "Bench Press" --limit 20
 ```
 
 **Example output (all exercises):**

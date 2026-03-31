@@ -27,7 +27,7 @@ If you don't have Python 3.8+:
 
 ### Claude Code CLI
 
-Kai's WhatsApp integration requires Claude Code. Install it following the [official guide](https://docs.anthropic.com/en/docs/claude-code/getting-started).
+The WhatsApp integration requires Claude Code. Install it following the [official guide](https://docs.anthropic.com/en/docs/claude-code/getting-started).
 
 ```bash
 # Install Claude Code (requires Node.js 18+)
@@ -100,7 +100,7 @@ chmod +x setup.sh
 [4/6] Initializing database...
   Database initialized successfully.
   Workout tables initialized successfully.
-  Database ready: .../data/kai_health.db
+  Database ready: .../data/fitness.db
 
 [5/6] Profile setup...
   Your profile is at: config/profile.json
@@ -117,7 +117,7 @@ chmod +x setup.sh
 This creates:
 - `.env` -- Environment configuration
 - `config/profile.json` -- Your fitness profile
-- `data/kai_health.db` -- SQLite database (all your data will live here)
+- `data/fitness.db` -- SQLite database (all your data will live here)
 
 ### 3. Configure Your Profile
 
@@ -199,10 +199,10 @@ nano .env
 
 ```bash
 # Required for WhatsApp reminders (leave commented out if not using WhatsApp)
-KAI_WHATSAPP_CHAT_ID=your-group-id@g.us
+AFC_WHATSAPP_CHAT_ID=your-group-id@g.us
 
 # Optional -- set your timezone for accurate date handling
-KAI_TIMEZONE=America/New_York
+AFC_TIMEZONE=America/New_York
 ```
 
 **Common timezone values:**
@@ -224,19 +224,19 @@ Run these commands one at a time to verify everything works:
 
 ```bash
 # 1. Log a test weight entry
-python3 src/kai-cli.py log-weight 70.0
+python3 src/fitness-cli.py log-weight 70.0
 # Expected: "Logged weight: 70.0 kg"
 
 # 2. Check your status
-python3 src/kai-cli.py quick-status
+python3 src/fitness-cli.py quick-status
 # Expected: Shows last workout, weight, sleep, today's intake
 
 # 3. Log a test meal
-python3 src/kai-cli.py log-food "Test meal" 500 30 50 15
+python3 src/fitness-cli.py log-food "Test meal" 500 30 50 15
 # Expected: "Logged food: Test meal (500 kcal)" followed by daily totals
 
 # 4. Get a workout suggestion
-python3 src/kai-cli.py suggest-workout
+python3 src/fitness-cli.py suggest-workout
 # Expected: A structured workout plan based on your profile
 ```
 
@@ -258,7 +258,7 @@ python3 src/kai-cli.py suggest-workout
    # Then edit the config and replace all /path/to/ai-fitness-coach/ with the output of pwd
    ```
 
-4. Test by sending a message to your WhatsApp group (e.g., "What's my status?"). Kai should respond.
+4. Test by sending a message to your WhatsApp group (e.g., "What's my status?"). The coach should respond.
 
 ### 7. Install Cron Jobs (Optional)
 
@@ -281,8 +281,8 @@ Log file:          /Users/you/ai-fitness-coach/cron.log
 
 The following cron jobs will be added:
 
-  Morning (10:00 AM): 0 10 * * * KAI_DIR=... .../cron/workout-reminder.sh >> .../cron.log 2>&1
-  Evening (7:30 PM):  30 19 * * * KAI_DIR=... .../cron/workout-reminder.sh >> .../cron.log 2>&1
+  Morning (10:00 AM): 0 10 * * * AFC_DIR=... .../cron/workout-reminder.sh >> .../cron.log 2>&1
+  Evening (7:30 PM):  30 19 * * * AFC_DIR=... .../cron/workout-reminder.sh >> .../cron.log 2>&1
 
 Install these cron jobs? [y/N]
 ```
@@ -301,15 +301,15 @@ Customize times by editing your crontab: `crontab -e`
 After setup, verify each component is working:
 
 - [ ] **Python version**: `python3 --version` shows 3.8+
-- [ ] **Database exists**: `ls data/kai_health.db` shows the file
+- [ ] **Database exists**: `ls data/fitness.db` shows the file
 - [ ] **Profile exists**: `ls config/profile.json` shows the file
-- [ ] **CLI runs**: `python3 src/kai-cli.py --help` shows the help menu
-- [ ] **Log weight**: `python3 src/kai-cli.py log-weight 70.0` succeeds
-- [ ] **Log food**: `python3 src/kai-cli.py log-food "Test" 500 30 50 15` succeeds
-- [ ] **Quick status**: `python3 src/kai-cli.py quick-status` shows data
-- [ ] **Workout suggestion**: `python3 src/kai-cli.py suggest-workout` generates a plan
+- [ ] **CLI runs**: `python3 src/fitness-cli.py --help` shows the help menu
+- [ ] **Log weight**: `python3 src/fitness-cli.py log-weight 70.0` succeeds
+- [ ] **Log food**: `python3 src/fitness-cli.py log-food "Test" 500 30 50 15` succeeds
+- [ ] **Quick status**: `python3 src/fitness-cli.py quick-status` shows data
+- [ ] **Workout suggestion**: `python3 src/fitness-cli.py suggest-workout` generates a plan
 - [ ] **Cron jobs** (if installed): `crontab -l` shows the AI Fitness Coach entries
-- [ ] **WhatsApp** (if configured): Send a test message to your group and verify Kai responds
+- [ ] **WhatsApp** (if configured): Send a test message to your group and verify the coach responds
 
 ---
 
@@ -327,7 +327,7 @@ After setup, verify each component is working:
 - **Python**: Usually pre-installed. If not: `sudo apt update && sudo apt install -y python3`
 - **Node.js**: Install via NodeSource: `curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt install -y nodejs`
 - **Cron**: Pre-installed and running on most distributions. Verify with `systemctl status cron`
-- **Permissions**: If you get permission errors, check file ownership: `ls -la src/kai-cli.py`
+- **Permissions**: If you get permission errors, check file ownership: `ls -la src/fitness-cli.py`
 
 ### Windows (WSL)
 
@@ -361,13 +361,13 @@ AI Fitness Coach is designed for Unix-like systems. On Windows, use WSL (Windows
 
 **Fix**: Use the full path to the script:
 ```bash
-python3 /path/to/ai-fitness-coach/src/kai-cli.py quick-status
+python3 /path/to/ai-fitness-coach/src/fitness-cli.py quick-status
 ```
 
 Or `cd` into the project directory first:
 ```bash
 cd /path/to/ai-fitness-coach
-python3 src/kai-cli.py quick-status
+python3 src/fitness-cli.py quick-status
 ```
 
 ### Database not found / "no such table"
@@ -377,14 +377,14 @@ python3 src/kai-cli.py quick-status
 **Fix**: Manually create the database:
 ```bash
 mkdir -p data
-python3 src/db_manager.py data/kai_health.db
+python3 src/db_manager.py data/fitness.db
 ```
 
 **Expected output:**
 ```
 Database initialized successfully.
 Workout tables initialized successfully.
-Database ready: data/kai_health.db
+Database ready: data/fitness.db
 ```
 
 ### "Permission denied" when running setup.sh
@@ -407,14 +407,14 @@ chmod +x cron/workout-reminder.sh
 5. **WSL**: Start the cron service: `sudo service cron start`
 6. **Test the script manually**:
    ```bash
-   KAI_DIR=$(pwd) ./cron/workout-reminder.sh
+   AFC_DIR=$(pwd) ./cron/workout-reminder.sh
    ```
 
 ### WhatsApp messages not sending
 
 1. **Verify Claude Code is authenticated**: `claude --version` should show the version without errors
 2. **Check the WhatsApp plugin status**: Make sure the plugin is installed and your device is paired
-3. **Verify chat ID**: Make sure `KAI_WHATSAPP_CHAT_ID` in `.env` matches your actual group ID
+3. **Verify chat ID**: Make sure `AFC_WHATSAPP_CHAT_ID` in `.env` matches your actual group ID
 4. **Test Claude directly**: Try running a simple Claude command to verify it works:
    ```bash
    claude -p "Say hello"

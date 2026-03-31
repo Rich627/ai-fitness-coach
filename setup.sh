@@ -11,7 +11,7 @@
 
 set -euo pipefail
 
-KAI_DIR="$(cd "$(dirname "$0")" && pwd)"
+AFC_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo "======================================"
 echo "  AI Fitness Coach -- Setup"
@@ -38,12 +38,12 @@ echo ""
 
 # --- 2. Install dependencies ---
 echo "[2/6] Checking dependencies..."
-if [ -f "${KAI_DIR}/requirements.txt" ]; then
+if [ -f "${AFC_DIR}/requirements.txt" ]; then
     # Currently no external deps needed, but run pip if any are uncommented
-    ACTIVE_DEPS=$(grep -v '^#' "${KAI_DIR}/requirements.txt" | grep -v '^$' | head -1 || true)
+    ACTIVE_DEPS=$(grep -v '^#' "${AFC_DIR}/requirements.txt" | grep -v '^$' | head -1 || true)
     if [ -n "$ACTIVE_DEPS" ]; then
         echo "  Installing Python packages..."
-        pip3 install -r "${KAI_DIR}/requirements.txt"
+        pip3 install -r "${AFC_DIR}/requirements.txt"
     else
         echo "  No external dependencies needed (uses Python standard library only)"
     fi
@@ -54,28 +54,28 @@ echo ""
 echo "[3/6] Setting up configuration..."
 
 # .env
-if [ ! -f "${KAI_DIR}/.env" ]; then
-    cp "${KAI_DIR}/config/.env.example" "${KAI_DIR}/.env"
+if [ ! -f "${AFC_DIR}/.env" ]; then
+    cp "${AFC_DIR}/config/.env.example" "${AFC_DIR}/.env"
     echo "  Created .env from template"
 else
     echo "  .env already exists, skipping"
 fi
 
 # profile.json
-if [ ! -f "${KAI_DIR}/config/profile.json" ]; then
-    cp "${KAI_DIR}/config/profile.example.json" "${KAI_DIR}/config/profile.json"
+if [ ! -f "${AFC_DIR}/config/profile.json" ]; then
+    cp "${AFC_DIR}/config/profile.example.json" "${AFC_DIR}/config/profile.json"
     echo "  Created config/profile.json from template"
 else
     echo "  config/profile.json already exists, skipping"
 fi
 
 # data directory
-mkdir -p "${KAI_DIR}/data"
+mkdir -p "${AFC_DIR}/data"
 echo ""
 
 # --- 4. Initialize database ---
 echo "[4/6] Initializing database..."
-python3 "${KAI_DIR}/src/db_manager.py" "${KAI_DIR}/data/kai_health.db"
+python3 "${AFC_DIR}/src/db_manager.py" "${AFC_DIR}/data/fitness.db"
 echo ""
 
 # --- 5. Profile setup ---
@@ -94,13 +94,13 @@ read -p "  Open profile.json for editing now? [y/N] " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     if command -v code &>/dev/null; then
-        code "${KAI_DIR}/config/profile.json"
+        code "${AFC_DIR}/config/profile.json"
     elif [ -n "${EDITOR:-}" ]; then
-        $EDITOR "${KAI_DIR}/config/profile.json"
+        $EDITOR "${AFC_DIR}/config/profile.json"
     elif command -v nano &>/dev/null; then
-        nano "${KAI_DIR}/config/profile.json"
+        nano "${AFC_DIR}/config/profile.json"
     elif command -v vim &>/dev/null; then
-        vim "${KAI_DIR}/config/profile.json"
+        vim "${AFC_DIR}/config/profile.json"
     else
         echo "  No editor found. Please edit config/profile.json manually."
     fi
@@ -110,17 +110,17 @@ echo ""
 # --- 6. Cron jobs (optional) ---
 echo "[6/6] Automated reminders (optional)..."
 echo ""
-echo "  Kai can send automated WhatsApp reminders via cron jobs."
+echo "  The AI Fitness Coach can send automated WhatsApp reminders via cron jobs."
 echo "  This requires:"
 echo "    - Claude Code CLI installed"
 echo "    - WhatsApp channel plugin configured"
-echo "    - KAI_WHATSAPP_CHAT_ID set in .env"
+echo "    - AFC_WHATSAPP_CHAT_ID set in .env"
 echo ""
 
 read -p "  Install cron jobs for automated reminders? [y/N] " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    bash "${KAI_DIR}/cron/install-cron.sh"
+    bash "${AFC_DIR}/cron/install-cron.sh"
 fi
 echo ""
 
@@ -131,16 +131,16 @@ echo "======================================"
 echo ""
 echo "Quick start:"
 echo "  # Log your weight"
-echo "  python3 src/kai-cli.py log-weight 70.5"
+echo "  python3 src/fitness-cli.py log-weight 70.5"
 echo ""
 echo "  # Log a meal"
-echo '  python3 src/kai-cli.py log-food "Chicken breast and rice" 550 45 60 12'
+echo '  python3 src/fitness-cli.py log-food "Chicken breast and rice" 550 45 60 12'
 echo ""
 echo "  # Get a workout suggestion"
-echo "  python3 src/kai-cli.py suggest-workout --duration 40"
+echo "  python3 src/fitness-cli.py suggest-workout --duration 40"
 echo ""
 echo "  # Check your status"
-echo "  python3 src/kai-cli.py quick-status"
+echo "  python3 src/fitness-cli.py quick-status"
 echo ""
 echo "For full command reference: docs/COMMANDS.md"
 echo "For architecture details:   docs/ARCHITECTURE.md"

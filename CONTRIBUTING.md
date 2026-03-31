@@ -25,7 +25,7 @@ Thank you for your interest in contributing! This document covers guidelines and
 ```
 ai-fitness-coach/
   src/
-    kai-cli.py         # Main CLI -- all fitness commands live here
+    fitness-cli.py         # Main CLI -- all fitness commands live here
     db_manager.py      # SQLite database layer (pure functions, no global state)
     exercises.md       # Exercise database (Markdown format)
   config/
@@ -41,12 +41,12 @@ ai-fitness-coach/
 
 ## Code Conventions
 
-### Python (kai-cli.py, db_manager.py)
+### Python (fitness-cli.py, db_manager.py)
 
 - **Python 3.8+ compatibility** -- do not use features introduced after 3.8 (e.g., walrus operator is fine, but `match` statements from 3.10 are not).
 - **Standard library only** -- no external pip packages. This keeps deployment simple (no virtualenvs, no pip installs).
 - **db_manager.py** uses pure functions: each function accepts a `db_path` argument, opens its own connection, and returns Python dicts or lists. No global state, no singletons.
-- **kai-cli.py** uses `argparse` with subcommands. Each command is a function that receives `args`.
+- **fitness-cli.py** uses `argparse` with subcommands. Each command is a function that receives `args`.
 - Use clear variable names and add comments for non-obvious logic.
 
 ### Shell Scripts (cron/, setup.sh)
@@ -77,7 +77,7 @@ Equipment types recognized by the suggestion engine: `Barbell`, `Dumbbell`, `Cab
 
 ### Adding CLI Commands
 
-1. Add a new subcommand in the `argparse` setup section of `kai-cli.py`.
+1. Add a new subcommand in the `argparse` setup section of `fitness-cli.py`.
 2. Write the handler function following the pattern of existing commands.
 3. If it needs new database operations, add them to `db_manager.py`.
 4. Update the command reference in `docs/COMMANDS.md`.
@@ -95,13 +95,13 @@ Equipment types recognized by the suggestion engine: `Barbell`, `Dumbbell`, `Cab
 
 1. Make sure the CLI still works:
    ```bash
-   python3 src/kai-cli.py --help
-   python3 src/kai-cli.py quick-status
+   python3 src/fitness-cli.py --help
+   python3 src/fitness-cli.py quick-status
    ```
 2. If you changed db_manager.py, verify the database initializes cleanly:
    ```bash
-   rm -f /tmp/test_kai.db
-   python3 src/db_manager.py /tmp/test_kai.db
+   rm -f /tmp/test_fitness.db
+   python3 src/db_manager.py /tmp/test_fitness.db
    ```
 3. Commit with a clear message describing what and why.
 4. Push to your fork and open a Pull Request.

@@ -2,7 +2,7 @@
 
 **AI 驅動的 WhatsApp 健身教練** -- 運動追蹤、營養記錄、智慧建議。
 
-Kai 是一個住在你 WhatsApp 群組裡的個人健身代理。它追蹤你的運動、營養、睡眠和體重，然後用這些數據給你智慧的運動建議、督促你保持規律，並透過 cron 排程發送個人化的提醒訊息。
+AI Fitness Coach 是一個住在你 WhatsApp 群組裡的個人健身代理。它追蹤你的運動、營養、睡眠和體重，然後用這些數據給你智慧的運動建議、督促你保持規律，並透過 cron 排程發送個人化的提醒訊息。
 
 基於 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 與 WhatsApp 頻道外掛建構。
 
@@ -56,10 +56,10 @@ cp config/profile.example.json config/profile.json
 nano config/profile.json  # 設定姓名、目標、健身器材等
 
 # 3. 初始化資料庫
-python3 src/db_manager.py data/kai_health.db
+python3 src/db_manager.py data/fitness.db
 
 # 4. 測試
-python3 src/kai-cli.py quick-status
+python3 src/fitness-cli.py quick-status
 ```
 
 ## CLI 指令
@@ -68,60 +68,60 @@ python3 src/kai-cli.py quick-status
 
 ```bash
 # 記錄一餐
-python3 src/kai-cli.py log-food "雞胸肉飯" 550 45 60 12
+python3 src/fitness-cli.py log-food "雞胸肉飯" 550 45 60 12
 
 # 記錄體重
-python3 src/kai-cli.py log-weight 70.5
+python3 src/fitness-cli.py log-weight 70.5
 
 # 記錄運動
-python3 src/kai-cli.py log-workout "健身房" "胸" 40 "臥推、啞鈴飛鳥、伏地挺身"
+python3 src/fitness-cli.py log-workout "健身房" "胸" 40 "臥推、啞鈴飛鳥、伏地挺身"
 
 # 記錄睡眠
-python3 src/kai-cli.py log-sleep 2025-01-15 23:30 07:00 7.5 --quality good
+python3 src/fitness-cli.py log-sleep 2025-01-15 23:30 07:00 7.5 --quality good
 
 # 記錄單一動作（漸進式超負荷追蹤）
-python3 src/kai-cli.py log-exercise "Bench Press" "Chest" 135 3 10 --rpe 8
+python3 src/fitness-cli.py log-exercise "Bench Press" "Chest" 135 3 10 --rpe 8
 ```
 
 ### 查詢數據
 
 ```bash
 # 快速狀態總覽
-python3 src/kai-cli.py quick-status
+python3 src/fitness-cli.py quick-status
 
 # 今日營養
-python3 src/kai-cli.py daily-summary
+python3 src/fitness-cli.py daily-summary
 
 # 過去 7 天總覽
-python3 src/kai-cli.py weekly-summary
+python3 src/fitness-cli.py weekly-summary
 
 # 體重趨勢
-python3 src/kai-cli.py weight-trend
+python3 src/fitness-cli.py weight-trend
 
 # 睡眠歷史
-python3 src/kai-cli.py sleep-trend
+python3 src/fitness-cli.py sleep-trend
 
 # 上次運動詳情
-python3 src/kai-cli.py last-workout
+python3 src/fitness-cli.py last-workout
 ```
 
 ### 智慧功能
 
 ```bash
 # 取得運動建議（自動選擇你最近沒練的肌群）
-python3 src/kai-cli.py suggest-workout
+python3 src/fitness-cli.py suggest-workout
 
 # 指定時長或重點
-python3 src/kai-cli.py suggest-workout --duration 30 --focus chest
+python3 src/fitness-cli.py suggest-workout --duration 30 --focus chest
 
 # 週計劃與補課建議
-python3 src/kai-cli.py weekly-plan
+python3 src/fitness-cli.py weekly-plan
 
 # 所有動作的力量趨勢
-python3 src/kai-cli.py strength-trend
+python3 src/fitness-cli.py strength-trend
 
 # 特定動作的力量趨勢
-python3 src/kai-cli.py strength-trend "Bench Press"
+python3 src/fitness-cli.py strength-trend "Bench Press"
 ```
 
 ## 部署選項
@@ -163,11 +163,11 @@ python3 src/kai-cli.py strength-trend "Bench Press"
 
 | 變數 | 預設值 | 說明 |
 |---|---|---|
-| `KAI_DB_PATH` | `data/kai_health.db` | SQLite 資料庫位置 |
-| `KAI_PROFILE_PATH` | `config/profile.json` | 個人檔案位置 |
-| `KAI_EXERCISES_PATH` | `src/exercises.md` | 動作資料庫位置 |
-| `KAI_TIMEZONE` | （系統預設） | 你的時區 |
-| `KAI_WHATSAPP_CHAT_ID` | （無） | WhatsApp 群組 ID |
+| `AFC_DB_PATH` | `data/fitness.db` | SQLite 資料庫位置 |
+| `AFC_PROFILE_PATH` | `config/profile.json` | 個人檔案位置 |
+| `AFC_EXERCISES_PATH` | `src/exercises.md` | 動作資料庫位置 |
+| `AFC_TIMEZONE` | （系統預設） | 你的時區 |
+| `AFC_WHATSAPP_CHAT_ID` | （無） | WhatsApp 群組 ID |
 
 ## 授權
 

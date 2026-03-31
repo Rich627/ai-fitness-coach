@@ -6,7 +6,7 @@
 
 **AI-powered WhatsApp fitness coach** with workout tracking, nutrition logging, and smart recommendations.
 
-Kai is a personal fitness agent that lives in your WhatsApp group. It tracks your workouts, nutrition, sleep, and weight -- then uses that data to give you smart workout suggestions, hold you accountable, and send personalized reminders via cron jobs.
+AI Fitness Coach is a personal fitness agent that lives in your WhatsApp group. It tracks your workouts, nutrition, sleep, and weight -- then uses that data to give you smart workout suggestions, hold you accountable, and send personalized reminders via cron jobs.
 
 Built on [Claude Code](https://docs.anthropic.com/en/docs/claude-code) with the WhatsApp channel plugin.
 
@@ -43,12 +43,12 @@ Built on [Claude Code](https://docs.anthropic.com/en/docs/claude-code) with the 
 
 ## Example WhatsApp Conversation
 
-Here is what a typical interaction with Kai looks like in your WhatsApp group:
+Here is what a typical interaction with the AI Fitness Coach looks like in your WhatsApp group:
 
 ```
 You:    Just had grilled chicken with rice and veggies for lunch
 
-Kai:    Got it! Logged your lunch:
+Coach:    Got it! Logged your lunch:
         - Grilled chicken with rice and veggies
         - ~520 kcal | 42g protein | 55g carbs | 12g fat
 
@@ -60,7 +60,7 @@ Kai:    Got it! Logged your lunch:
 ```
 You:    What should I train today?
 
-Kai:    Based on your history, you haven't trained Back in 5 days
+Coach:    Based on your history, you haven't trained Back in 5 days
         and Shoulders in 4 days. Your sleep has been solid (7.5h avg),
         so I'd push the volume a bit.
 
@@ -85,7 +85,7 @@ Kai:    Based on your history, you haven't trained Back in 5 days
 ```
 [10:00 AM -- Automated Morning Reminder]
 
-Kai:    Good morning! It's been 2 days since your last workout
+Coach:    Good morning! It's been 2 days since your last workout
         (Chest at Home Gym). How was your sleep last night?
         Today might be a good day for Back or Legs -- just say
         the word and I'll build you a plan!
@@ -100,11 +100,11 @@ Kai:    Good morning! It's been 2 days since your last workout
 ```
 +------------------+       +-------------------+       +------------------+
 |                  |       |                   |       |                  |
-|  You (WhatsApp)  +------>+ Claude Code +     +------>+ kai-cli.py       |
+|  You (WhatsApp)  +------>+ Claude Code +     +------>+ fitness-cli.py       |
 |                  |       | WhatsApp Plugin   |       | (CLI interface)  |
 |  "I ate chicken  |       |                   |       |                  |
 |   breast + rice" |       | Reads group       |       | Estimates macros |
-|                  |       | config (Kai       |       | Calls log-food   |
+|                  |       | config (Coach     |       | Calls log-food   |
 +------------------+       | persona)          |       |                  |
                            +-------------------+       +--------+---------+
                                                                 |
@@ -119,7 +119,7 @@ Kai:    Good morning! It's been 2 days since your last workout
                                                                 v
                                                        +--------+---------+
                                                        |                  |
-                                                       | kai_health.db    |
+                                                       | fitness.db    |
                                                        | (local SQLite)   |
                                                        |                  |
                                                        +------------------+
@@ -129,16 +129,16 @@ Kai:    Good morning! It's been 2 days since your last workout
 
 1. **You** send a message to your WhatsApp group (e.g., "I ate chicken breast with rice", "What should I train today?", or a photo of your meal)
 2. **Claude Code** (with the WhatsApp channel plugin) receives the message and reads the group config file
-3. **Kai's personality** (defined in `config/group-config.example.md`) interprets the message -- estimating macros from food descriptions, understanding workout completions, etc.
-4. **kai-cli.py** is called with the appropriate command to log data to or query from the local SQLite database
+3. **The coach's personality** (defined in `config/group-config.example.md`) interprets the message -- estimating macros from food descriptions, understanding workout completions, etc.
+4. **fitness-cli.py** is called with the appropriate command to log data to or query from the local SQLite database
 5. **Claude** formats the database response into a friendly, conversational WhatsApp reply
 6. **Cron jobs** run twice daily (10 AM and 7:30 PM), fetch your current status via `quick-status`, and use Claude to generate and send a personalized reminder
 
 ### Cron Reminder Flow
 
 ```
-Cron (10 AM) --> workout-reminder.sh --> kai-cli.py quick-status
-                                     --> kai-cli.py last-workout
+Cron (10 AM) --> workout-reminder.sh --> fitness-cli.py quick-status
+                                     --> fitness-cli.py last-workout
                                               |
                                               v
                                      Claude generates personalized
@@ -207,7 +207,7 @@ chmod +x setup.sh
 The setup script will walk you through:
 1. Checking your Python version
 2. Creating config files from templates (`.env`, `profile.json`)
-3. Initializing the SQLite database (`data/kai_health.db`)
+3. Initializing the SQLite database (`data/fitness.db`)
 4. Opening your profile for customization
 5. Optionally installing cron jobs for automated WhatsApp reminders
 
@@ -232,13 +232,13 @@ Key things to set:
 
 ```bash
 # Log a test weight entry
-python3 src/kai-cli.py log-weight 70.0
+python3 src/fitness-cli.py log-weight 70.0
 
 # Check your status (should show the weight you just logged)
-python3 src/kai-cli.py quick-status
+python3 src/fitness-cli.py quick-status
 
 # Get a workout suggestion
-python3 src/kai-cli.py suggest-workout
+python3 src/fitness-cli.py suggest-workout
 ```
 
 If all three commands run without errors, you are all set.
@@ -250,7 +250,7 @@ If you want the WhatsApp integration:
 1. Set up the Claude Code WhatsApp channel plugin
 2. Copy the group config: `cp config/group-config.example.md /path/to/whatsapp-channel/groups/YOUR_GROUP_ID/config.md`
 3. Edit the config to update file paths to your installation
-4. Set `KAI_WHATSAPP_CHAT_ID` in your `.env` file
+4. Set `AFC_WHATSAPP_CHAT_ID` in your `.env` file
 5. Install cron jobs for automated reminders: `./cron/install-cron.sh`
 
 See [docs/SETUP.md](docs/SETUP.md) for the full detailed setup guide.
@@ -266,10 +266,10 @@ cp config/profile.example.json config/profile.json
 nano config/profile.json  # Set your name, goals, gym equipment, etc.
 
 # 3. Initialize the database
-python3 src/db_manager.py data/kai_health.db
+python3 src/db_manager.py data/fitness.db
 
 # 4. Test it
-python3 src/kai-cli.py quick-status
+python3 src/fitness-cli.py quick-status
 ```
 
 ---
@@ -282,60 +282,60 @@ For the full command reference with all arguments and options, see [docs/COMMAND
 
 ```bash
 # Log a meal
-python3 src/kai-cli.py log-food "Chicken breast and rice" 550 45 60 12
+python3 src/fitness-cli.py log-food "Chicken breast and rice" 550 45 60 12
 
 # Log weight
-python3 src/kai-cli.py log-weight 70.5
+python3 src/fitness-cli.py log-weight 70.5
 
 # Log a workout session
-python3 src/kai-cli.py log-workout "Home Gym" "Chest" 40 "Bench Press, Dumbbell Fly, Push-ups"
+python3 src/fitness-cli.py log-workout "Home Gym" "Chest" 40 "Bench Press, Dumbbell Fly, Push-ups"
 
 # Log sleep
-python3 src/kai-cli.py log-sleep 2025-01-15 23:30 07:00 7.5 --quality good
+python3 src/fitness-cli.py log-sleep 2025-01-15 23:30 07:00 7.5 --quality good
 
 # Log a single exercise (for progressive overload tracking)
-python3 src/kai-cli.py log-exercise "Bench Press" "Chest" 135 3 10 --rpe 8
+python3 src/fitness-cli.py log-exercise "Bench Press" "Chest" 135 3 10 --rpe 8
 ```
 
 ### Querying Data
 
 ```bash
 # Quick status overview
-python3 src/kai-cli.py quick-status
+python3 src/fitness-cli.py quick-status
 
 # Today's nutrition
-python3 src/kai-cli.py daily-summary
+python3 src/fitness-cli.py daily-summary
 
 # Last 7 days overview
-python3 src/kai-cli.py weekly-summary
+python3 src/fitness-cli.py weekly-summary
 
 # Weight trend
-python3 src/kai-cli.py weight-trend
+python3 src/fitness-cli.py weight-trend
 
 # Sleep history
-python3 src/kai-cli.py sleep-trend
+python3 src/fitness-cli.py sleep-trend
 
 # Last workout details
-python3 src/kai-cli.py last-workout
+python3 src/fitness-cli.py last-workout
 ```
 
 ### Smart Features
 
 ```bash
 # Get a workout suggestion (auto-picks muscle groups you haven't trained)
-python3 src/kai-cli.py suggest-workout
+python3 src/fitness-cli.py suggest-workout
 
 # Request specific duration or focus
-python3 src/kai-cli.py suggest-workout --duration 30 --focus chest
+python3 src/fitness-cli.py suggest-workout --duration 30 --focus chest
 
 # Weekly plan with catch-up suggestions
-python3 src/kai-cli.py weekly-plan
+python3 src/fitness-cli.py weekly-plan
 
 # Strength progression for all exercises
-python3 src/kai-cli.py strength-trend
+python3 src/fitness-cli.py strength-trend
 
 # Strength progression for a specific exercise
-python3 src/kai-cli.py strength-trend "Bench Press"
+python3 src/fitness-cli.py strength-trend "Bench Press"
 ```
 
 ---
@@ -381,15 +381,15 @@ Key fields:
 
 | Variable | Default | Description |
 |---|---|---|
-| `KAI_DB_PATH` | `data/kai_health.db` | SQLite database location |
-| `KAI_PROFILE_PATH` | `config/profile.json` | Profile JSON location |
-| `KAI_EXERCISES_PATH` | `src/exercises.md` | Exercise database location |
-| `KAI_TIMEZONE` | (system default) | Your timezone (e.g. `America/New_York`) |
-| `KAI_WHATSAPP_CHAT_ID` | (none) | WhatsApp group ID for reminders |
+| `AFC_DB_PATH` | `data/fitness.db` | SQLite database location |
+| `AFC_PROFILE_PATH` | `config/profile.json` | Profile JSON location |
+| `AFC_EXERCISES_PATH` | `src/exercises.md` | Exercise database location |
+| `AFC_TIMEZONE` | (system default) | Your timezone (e.g. `America/New_York`) |
+| `AFC_WHATSAPP_CHAT_ID` | (none) | WhatsApp group ID for reminders |
 
 ### WhatsApp Group Config (`config/group-config.example.md`)
 
-If using the WhatsApp channel plugin, this file configures Kai's personality, tone, and behavior for your group chat. Copy it to your WhatsApp channel's group config directory.
+If using the WhatsApp channel plugin, this file configures the coach's personality, tone, and behavior for your group chat. Copy it to your WhatsApp channel's group config directory.
 
 ---
 
@@ -400,8 +400,8 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full architecture overv
 **In short:**
 1. **You** send messages to your WhatsApp group (meal photos, workout reports, questions)
 2. **Claude Code** (with the WhatsApp plugin) receives the message and reads the group config
-3. **Kai's personality** (defined in the group config) processes the message
-4. **kai-cli.py** logs data to / queries from a local SQLite database
+3. **The coach's personality** (defined in the group config) processes the message
+4. **fitness-cli.py** logs data to / queries from a local SQLite database
 5. **Cron jobs** run twice daily, fetch your status, and send personalized reminders
 
 ---
@@ -429,11 +429,11 @@ Yes, Claude Code requires an Anthropic API subscription or a Claude Pro/Team pla
 
 ### Can I use this without WhatsApp?
 
-Yes. The CLI (`kai-cli.py`) works entirely standalone. You can log food, workouts, sleep, and weight directly from the terminal. The WhatsApp integration is optional and adds the conversational interface and automated reminders.
+Yes. The CLI (`fitness-cli.py`) works entirely standalone. You can log food, workouts, sleep, and weight directly from the terminal. The WhatsApp integration is optional and adds the conversational interface and automated reminders.
 
 ### Where is my data stored?
 
-All data is stored locally in a SQLite database file (`data/kai_health.db`). Nothing is sent to external servers beyond the Claude API calls for generating responses. Your fitness data stays on your machine.
+All data is stored locally in a SQLite database file (`data/fitness.db`). Nothing is sent to external servers beyond the Claude API calls for generating responses. Your fitness data stays on your machine.
 
 ### Can I run this on Windows?
 
@@ -441,15 +441,15 @@ The CLI and database work on Windows natively. For cron-based reminders and the 
 
 ### How do I back up my data?
 
-Copy the `data/kai_health.db` file. That single file contains all your workouts, nutrition logs, weight history, and sleep data. See [docs/AWS_SETUP.md](docs/AWS_SETUP.md) for automated backup instructions.
+Copy the `data/fitness.db` file. That single file contains all your workouts, nutrition logs, weight history, and sleep data. See [docs/AWS_SETUP.md](docs/AWS_SETUP.md) for automated backup instructions.
 
 ### Can multiple people use the same instance?
 
-Currently, the system is designed for a single user per installation. Each person should have their own profile and database. Multiple people in the same WhatsApp group will share a single Kai bot, but data tracking is per-installation.
+Currently, the system is designed for a single user per installation. Each person should have their own profile and database. Multiple people in the same WhatsApp group will share a single bot, but data tracking is per-installation.
 
 ### How accurate are the AI macro estimates?
 
-Kai uses Claude's general knowledge to estimate macros from food descriptions. The estimates are reasonable approximations but not lab-precise. For more accuracy, provide specific quantities (e.g., "200g chicken breast" instead of "some chicken"). You can always override by providing exact macro values.
+The AI Fitness Coach uses Claude's general knowledge to estimate macros from food descriptions. The estimates are reasonable approximations but not lab-precise. For more accuracy, provide specific quantities (e.g., "200g chicken breast" instead of "some chicken"). You can always override by providing exact macro values.
 
 ### How do I change the reminder times?
 
@@ -477,7 +477,7 @@ cd ai-fitness-coach
 ./setup.sh
 
 # Run the CLI
-python3 src/kai-cli.py --help
+python3 src/fitness-cli.py --help
 
 # Run tests (if any)
 python3 -m pytest tests/

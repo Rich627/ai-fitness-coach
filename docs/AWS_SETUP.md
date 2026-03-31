@@ -82,7 +82,7 @@ chmod +x setup.sh
 
 1. Set up the WhatsApp channel plugin for Claude Code
 2. Pair your WhatsApp device
-3. Set `KAI_WHATSAPP_CHAT_ID` in `.env`
+3. Set `AFC_WHATSAPP_CHAT_ID` in `.env`
 
 ### 6. Install Cron Jobs
 
@@ -97,7 +97,7 @@ chmod +x setup.sh
 crontab -l
 
 # Run a test
-python3 src/kai-cli.py quick-status
+python3 src/fitness-cli.py quick-status
 
 # Check logs after a cron run
 tail -f cron.log
@@ -173,9 +173,9 @@ chmod +x setup.sh
 ssh root@your-droplet-ip
 
 # Create a non-root user (recommended)
-adduser kai
-usermod -aG sudo kai
-su - kai
+adduser afc
+usermod -aG sudo afc
+su - afc
 
 # Follow the same installation steps as AWS Lightsail (Step 3 onwards)
 sudo apt update && sudo apt upgrade -y
@@ -222,7 +222,7 @@ COPY . /app/
 RUN mkdir -p /app/data
 
 # Initialize database
-RUN python3 src/db_manager.py /app/data/kai_health.db
+RUN python3 src/db_manager.py /app/data/fitness.db
 
 # Install cron
 RUN apt-get update && apt-get install -y cron && apt-get clean
@@ -254,8 +254,8 @@ services:
 docker compose up -d
 
 # Run CLI commands inside the container
-docker compose exec ai-fitness-coach python3 src/kai-cli.py quick-status
-docker compose exec ai-fitness-coach python3 src/kai-cli.py suggest-workout
+docker compose exec ai-fitness-coach python3 src/fitness-cli.py quick-status
+docker compose exec ai-fitness-coach python3 src/fitness-cli.py suggest-workout
 
 # View logs
 docker compose logs -f
@@ -271,31 +271,31 @@ docker compose logs -f
 
 The VM's cron daemon runs automatically. No need for screen/tmux for the cron jobs.
 
-If you want to interact with Kai directly via SSH:
+If you want to interact with the coach directly via SSH:
 ```bash
 cd ai-fitness-coach
-python3 src/kai-cli.py suggest-workout
+python3 src/fitness-cli.py suggest-workout
 ```
 
 ### Data Backup
 
-Your data lives in `data/kai_health.db`. Back it up periodically:
+Your data lives in `data/fitness.db`. Back it up periodically:
 
 ```bash
 # Simple manual backup
-cp data/kai_health.db data/kai_health.db.backup
+cp data/fitness.db data/fitness.db.backup
 
 # Set up a daily backup cron (runs at 2 AM)
-(crontab -l 2>/dev/null; echo "0 2 * * * cp /home/ubuntu/ai-fitness-coach/data/kai_health.db /home/ubuntu/ai-fitness-coach/data/kai_health.db.\$(date +\%Y\%m\%d).backup") | crontab -
+(crontab -l 2>/dev/null; echo "0 2 * * * cp /home/ubuntu/ai-fitness-coach/data/fitness.db /home/ubuntu/ai-fitness-coach/data/fitness.db.\$(date +\%Y\%m\%d).backup") | crontab -
 ```
 
 To back up to a remote location:
 ```bash
 # Copy to your local machine
-scp ubuntu@your-instance-ip:~/ai-fitness-coach/data/kai_health.db ./backup/
+scp ubuntu@your-instance-ip:~/ai-fitness-coach/data/fitness.db ./backup/
 
 # Or sync to S3 (AWS only)
-aws s3 cp data/kai_health.db s3://your-bucket/backups/kai_health.db
+aws s3 cp data/fitness.db s3://your-bucket/backups/fitness.db
 ```
 
 ### Monitoring and Alerting
@@ -322,22 +322,22 @@ Create a script that checks if the system is working:
 #!/bin/bash
 # health-check.sh -- Check that AI Fitness Coach is operational
 
-KAI_DIR="${KAI_DIR:-$HOME/ai-fitness-coach}"
+AFC_DIR="${AFC_DIR:-$HOME/ai-fitness-coach}"
 
 echo "=== AI Fitness Coach Health Check ==="
 echo "Date: $(date)"
 echo ""
 
 # Check database exists
-if [ -f "${KAI_DIR}/data/kai_health.db" ]; then
-    DB_SIZE=$(du -h "${KAI_DIR}/data/kai_health.db" | cut -f1)
+if [ -f "${AFC_DIR}/data/fitness.db" ]; then
+    DB_SIZE=$(du -h "${AFC_DIR}/data/fitness.db" | cut -f1)
     echo "[OK] Database exists (${DB_SIZE})"
 else
     echo "[FAIL] Database not found!"
 fi
 
 # Check CLI works
-if python3 "${KAI_DIR}/src/kai-cli.py" quick-status > /dev/null 2>&1; then
+if python3 "${AFC_DIR}/src/fitness-cli.py" quick-status > /dev/null 2>&1; then
     echo "[OK] CLI is working"
 else
     echo "[FAIL] CLI error!"
@@ -351,8 +351,8 @@ else
 fi
 
 # Check last cron run
-if [ -f "${KAI_DIR}/cron.log" ]; then
-    LAST_RUN=$(tail -1 "${KAI_DIR}/cron.log" | head -c 19)
+if [ -f "${AFC_DIR}/cron.log" ]; then
+    LAST_RUN=$(tail -1 "${AFC_DIR}/cron.log" | head -c 19)
     echo "[INFO] Last cron log entry: ${LAST_RUN}"
 else
     echo "[INFO] No cron log found yet"

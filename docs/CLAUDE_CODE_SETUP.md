@@ -65,7 +65,7 @@ bun --version
 
 ### 1.3 Python 3.8+
 
-The fitness tracking CLI (`kai-cli.py`) is written in Python and uses only the standard library -- no pip packages required.
+The fitness tracking CLI (`fitness-cli.py`) is written in Python and uses only the standard library -- no pip packages required.
 
 ```bash
 # Check your Python version
@@ -206,7 +206,7 @@ The access configuration is stored at `~/.claude/channels/whatsapp/access.json`:
       "allowFrom": []
     }
   },
-  "mentionPatterns": ["claude", "kai"],
+  "mentionPatterns": ["claude", "coach"],
   "ackReaction": ""
 }
 ```
@@ -235,7 +235,7 @@ The setup script will:
 1. Check your Python version
 2. Create `.env` from `config/.env.example`
 3. Create `config/profile.json` from `config/profile.example.json`
-4. Initialize the SQLite database at `data/kai_health.db`
+4. Initialize the SQLite database at `data/fitness.db`
 5. Ask you to customize your profile
 6. Optionally install cron jobs
 
@@ -254,7 +254,7 @@ ai-fitness-coach/
     workout-reminder.sh    # Cron script that sends WhatsApp reminders
     install-cron.sh        # Script to install cron entries
   data/
-    kai_health.db          # SQLite database (created by setup, git-ignored)
+    fitness.db          # SQLite database (created by setup, git-ignored)
   docs/
     ARCHITECTURE.md        # System architecture overview
     AWS_SETUP.md           # Cloud deployment guide
@@ -262,7 +262,7 @@ ai-fitness-coach/
     SETUP.md               # General setup guide
     CLAUDE_CODE_SETUP.md   # This file
   src/
-    kai-cli.py             # Main CLI tool for all fitness operations
+    fitness-cli.py             # Main CLI tool for all fitness operations
     db_manager.py          # SQLite database layer
     exercises.md           # Exercise database (70+ exercises)
   .env                     # YOUR environment config (created by setup, git-ignored)
@@ -281,7 +281,7 @@ cd ~/Desktop/ai-fitness-coach
 claude --channels plugin:whatsapp@whatsapp-claude-plugin
 ```
 
-The `kai-cli.py` tool automatically loads `.env` from the project root, so relative paths like `data/kai_health.db` work when you run from this directory.
+The `fitness-cli.py` tool automatically loads `.env` from the project root, so relative paths like `data/fitness.db` work when you run from this directory.
 
 ---
 
@@ -297,7 +297,7 @@ The config file is structured like this:
 # Soul -- AI Fitness Coach
 
 ## Identity
-Name: Kai
+Name: Coach
 Role: Fitness Coach -- tracks workouts, provides suggestions
 
 ## Communication Style
@@ -316,7 +316,7 @@ Role: Fitness Coach -- tracks workouts, provides suggestions
 - Respect physical limitations and injuries
 
 ## Tools
-Use the Kai CLI to log and query health/fitness data. Run commands via Bash.
+Use the Fitness CLI to log and query health/fitness data. Run commands via Bash.
 (... CLI commands listed here ...)
 
 ## Cron Jobs
@@ -334,7 +334,7 @@ You need a WhatsApp group to serve as your fitness coaching channel.
 
 1. Open WhatsApp on your phone
 2. Create a new group (you can add just yourself if you want a personal coaching group)
-3. Name it something like "Fitness Coach" or "Kai Workout"
+3. Name it something like "Fitness Coach" or "Workout Group"
 
 **Step 2: Get the group's chat ID.**
 
@@ -393,16 +393,16 @@ cp ~/Desktop/ai-fitness-coach/config/group-config.example.md \
 Open the config file and replace all `/path/to/ai-fitness-coach/` with your actual project path. For example, if you cloned to `~/Desktop/ai-fitness-coach`, change:
 
 ```bash
-python3 /path/to/ai-fitness-coach/src/kai-cli.py log-food ...
+python3 /path/to/ai-fitness-coach/src/fitness-cli.py log-food ...
 ```
 
 to:
 
 ```bash
-python3 /Users/yourusername/Desktop/ai-fitness-coach/src/kai-cli.py log-food ...
+python3 /Users/yourusername/Desktop/ai-fitness-coach/src/fitness-cli.py log-food ...
 ```
 
-> **Use absolute paths.** The WhatsApp plugin may run commands from any working directory, so relative paths will break. Always use full paths like `/Users/yourusername/Desktop/ai-fitness-coach/src/kai-cli.py`.
+> **Use absolute paths.** The WhatsApp plugin may run commands from any working directory, so relative paths will break. Always use full paths like `/Users/yourusername/Desktop/ai-fitness-coach/src/fitness-cli.py`.
 
 ### 4.4 CLAUDE.md / AGENTS.md (Optional)
 
@@ -421,15 +421,15 @@ cat > ~/Desktop/ai-fitness-coach/CLAUDE.md << 'EOF'
 This is a WhatsApp-based fitness coaching bot powered by Claude Code.
 
 ## Key files
-- src/kai-cli.py -- Main CLI for all fitness operations
+- src/fitness-cli.py -- Main CLI for all fitness operations
 - src/db_manager.py -- SQLite database layer
 - config/profile.json -- User's fitness profile
 - config/group-config.example.md -- WhatsApp group personality template
 
 ## Development
 - Python 3.8+ (standard library only, no external packages)
-- Database: SQLite at data/kai_health.db
-- Run CLI: python3 src/kai-cli.py --help
+- Database: SQLite at data/fitness.db
+- Run CLI: python3 src/fitness-cli.py --help
 EOF
 ```
 
@@ -439,15 +439,15 @@ Edit the `.env` file in the project root:
 
 ```bash
 # Required for automated WhatsApp reminders
-KAI_WHATSAPP_CHAT_ID=120363424405607157@g.us
+AFC_WHATSAPP_CHAT_ID=120363424405607157@g.us
 
 # Optional: your timezone (affects cron timing context)
-KAI_TIMEZONE=America/New_York
+AFC_TIMEZONE=America/New_York
 
 # Optional: override default paths
-# KAI_DB_PATH=./data/kai_health.db
-# KAI_PROFILE_PATH=./config/profile.json
-# KAI_EXERCISES_PATH=./src/exercises.md
+# AFC_DB_PATH=./data/fitness.db
+# AFC_PROFILE_PATH=./config/profile.json
+# AFC_EXERCISES_PATH=./src/exercises.md
 ```
 
 Replace `120363424405607157@g.us` with your actual group ID from step 4.2.
@@ -475,15 +475,15 @@ The `## Tools` section in `config.md` follows this pattern:
 ```markdown
 ## Tools
 
-Use the Kai CLI to log and query health/fitness data. Run commands via Bash.
+Use the Fitness CLI to log and query health/fitness data. Run commands via Bash.
 
 **Logging data:**
 \`\`\`bash
 # Log food (all positional args required: description, calories, protein_g, carbs_g, fat_g)
-python3 /full/path/to/ai-fitness-coach/src/kai-cli.py log-food "<description>" <calories> <protein_g> <carbs_g> <fat_g>
+python3 /full/path/to/ai-fitness-coach/src/fitness-cli.py log-food "<description>" <calories> <protein_g> <carbs_g> <fat_g>
 
 # Log weight
-python3 /full/path/to/ai-fitness-coach/src/kai-cli.py log-weight <weight_kg>
+python3 /full/path/to/ai-fitness-coach/src/fitness-cli.py log-weight <weight_kg>
 \`\`\`
 
 **When to use:**
@@ -496,7 +496,7 @@ Each command includes:
 - Comments explaining what the arguments mean
 - A "When to use" section that guides Claude on when to invoke each command
 
-### 5.3 Example: How Claude Uses kai-cli.py
+### 5.3 Example: How Claude Uses fitness-cli.py
 
 **User sends in WhatsApp:** "I just had a chicken salad for lunch"
 
@@ -504,7 +504,7 @@ Each command includes:
 1. Reads the `## Tools` section from the group config
 2. Recognizes this is a food logging situation
 3. Estimates the macros for a chicken salad (e.g., 450 cal, 35g protein, 20g carbs, 18g fat)
-4. Runs: `python3 /path/to/src/kai-cli.py log-food "Chicken salad" 450 35 20 18`
+4. Runs: `python3 /path/to/src/fitness-cli.py log-food "Chicken salad" 450 35 20 18`
 5. Reads the CLI output (which includes today's running totals)
 6. Sends a WhatsApp reply like: "Logged your chicken salad! You're at 1,200 / 2,200 kcal today. Keep it up!"
 
@@ -515,7 +515,7 @@ You can add any CLI tool to the `## Tools` section. For example, if you have a s
 ```markdown
 ## Tools
 
-(... existing kai-cli commands ...)
+(... existing fitness-cli commands ...)
 
 **Smartcard tracking:**
 \`\`\`bash
@@ -533,7 +533,7 @@ python3 /path/to/smartcard-cli.py log-tx "<description>" <amount> "<category>"
 
 Claude will learn to use these tools from the instructions in config.md.
 
-### 5.5 Available kai-cli.py Commands
+### 5.5 Available fitness-cli.py Commands
 
 For a full command reference, see `docs/COMMANDS.md`. Quick summary:
 
@@ -633,13 +633,13 @@ The memory file grows over time. You can:
 
 ## 7. Cron Jobs Setup
 
-Cron jobs enable automated WhatsApp reminders -- Kai will check your data and send personalized messages at scheduled times (e.g., morning check-in, evening recap).
+Cron jobs enable automated WhatsApp reminders -- the coach will check your data and send personalized messages at scheduled times (e.g., morning check-in, evening recap).
 
 ### 7.1 How Cron Scripts Work with Claude Code
 
 The cron system uses a shell script (`cron/workout-reminder.sh`) that:
 
-1. Runs `kai-cli.py quick-status` and `kai-cli.py last-workout` to get your current fitness data
+1. Runs `fitness-cli.py quick-status` and `fitness-cli.py last-workout` to get your current fitness data
 2. Passes the data as a prompt to Claude Code using the `claude -p` flag
 3. Claude reads the data, generates a personalized message, and sends it to your WhatsApp group via the plugin
 
@@ -648,7 +648,7 @@ The key command is:
 ```bash
 claude -p --dangerously-skip-permissions \
   --dangerously-load-development-channels plugin:whatsapp@whatsapp-claude-plugin \
-  "You are Kai, a fitness coach. Here is the user's data: ... Send a reminder to chat_id: YOUR_GROUP_ID"
+  "You are a fitness coach. Here is the user's data: ... Send a reminder to chat_id: YOUR_GROUP_ID"
 ```
 
 **Breakdown of the flags:**
@@ -696,8 +696,8 @@ crontab -e
 
 # Add these lines (adjust paths and times):
 # AI Fitness Coach reminders
-0 10 * * * KAI_DIR=/Users/yourusername/Desktop/ai-fitness-coach /Users/yourusername/Desktop/ai-fitness-coach/cron/workout-reminder.sh >> /Users/yourusername/Desktop/ai-fitness-coach/cron.log 2>&1
-30 19 * * * KAI_DIR=/Users/yourusername/Desktop/ai-fitness-coach /Users/yourusername/Desktop/ai-fitness-coach/cron/workout-reminder.sh >> /Users/yourusername/Desktop/ai-fitness-coach/cron.log 2>&1
+0 10 * * * AFC_DIR=/Users/yourusername/Desktop/ai-fitness-coach /Users/yourusername/Desktop/ai-fitness-coach/cron/workout-reminder.sh >> /Users/yourusername/Desktop/ai-fitness-coach/cron.log 2>&1
+30 19 * * * AFC_DIR=/Users/yourusername/Desktop/ai-fitness-coach /Users/yourusername/Desktop/ai-fitness-coach/cron/workout-reminder.sh >> /Users/yourusername/Desktop/ai-fitness-coach/cron.log 2>&1
 ```
 
 **Cron time format:** `minute hour * * *`
@@ -731,11 +731,11 @@ If cron still does not work, try using `launchd` instead (see section 8.3).
 
 ### 7.6 Required .env Configuration
 
-The cron script reads `KAI_WHATSAPP_CHAT_ID` from the `.env` file:
+The cron script reads `AFC_WHATSAPP_CHAT_ID` from the `.env` file:
 
 ```bash
 # In ~/Desktop/ai-fitness-coach/.env
-KAI_WHATSAPP_CHAT_ID=120363424405607157@g.us
+AFC_WHATSAPP_CHAT_ID=120363424405607157@g.us
 ```
 
 Without this variable, the cron script will exit with an error.
@@ -746,7 +746,7 @@ Without this variable, the cron script will exit with an error.
 
 ### 8.1 Interactive Session (Manual)
 
-For real-time WhatsApp conversations with Kai, you need Claude Code running with the WhatsApp channel:
+For real-time WhatsApp conversations with the coach, you need Claude Code running with the WhatsApp channel:
 
 ```bash
 cd ~/Desktop/ai-fitness-coach
@@ -768,8 +768,8 @@ This keeps Claude Code listening for incoming WhatsApp messages. When someone me
 # macOS: brew install tmux
 # Ubuntu: sudo apt install tmux
 
-# Create a new tmux session named "kai"
-tmux new-session -s kai
+# Create a new tmux session named "afc"
+tmux new-session -s afc
 
 # Inside the tmux session, start Claude Code
 cd ~/Desktop/ai-fitness-coach
@@ -778,20 +778,20 @@ claude --channels plugin:whatsapp@whatsapp-claude-plugin
 # Detach from tmux (session keeps running): press Ctrl+B, then D
 
 # Re-attach later
-tmux attach-session -t kai
+tmux attach-session -t afc
 
 # List running sessions
 tmux list-sessions
 
 # Kill the session when done
-tmux kill-session -t kai
+tmux kill-session -t afc
 ```
 
 **Using screen:**
 
 ```bash
 # Create a new screen session
-screen -S kai
+screen -S afc
 
 # Start Claude Code
 cd ~/Desktop/ai-fitness-coach
@@ -800,14 +800,14 @@ claude --channels plugin:whatsapp@whatsapp-claude-plugin
 # Detach: press Ctrl+A, then D
 
 # Re-attach
-screen -r kai
+screen -r afc
 ```
 
 ### 8.3 launchd (macOS -- Auto-Start on Boot)
 
 On macOS, you can use `launchd` to automatically start the WhatsApp channel on boot.
 
-Create a plist file at `~/Library/LaunchAgents/com.kai.whatsapp.plist`:
+Create a plist file at `~/Library/LaunchAgents/com.afc.whatsapp.plist`:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -816,7 +816,7 @@ Create a plist file at `~/Library/LaunchAgents/com.kai.whatsapp.plist`:
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.kai.whatsapp</string>
+    <string>com.afc.whatsapp</string>
     <key>ProgramArguments</key>
     <array>
         <string>/usr/local/bin/claude</string>
@@ -846,20 +846,20 @@ Load it:
 
 ```bash
 # Load (starts immediately and on boot)
-launchctl load ~/Library/LaunchAgents/com.kai.whatsapp.plist
+launchctl load ~/Library/LaunchAgents/com.afc.whatsapp.plist
 
 # Unload (stop)
-launchctl unload ~/Library/LaunchAgents/com.kai.whatsapp.plist
+launchctl unload ~/Library/LaunchAgents/com.afc.whatsapp.plist
 
 # Check status
-launchctl list | grep kai
+launchctl list | grep afc
 ```
 
 > **Note:** Update the paths in the plist to match your actual username and Claude Code installation path. You can find the Claude binary path with `which claude`.
 
 ### 8.4 systemd (Linux -- Auto-Start on Boot)
 
-On Linux servers, create a systemd service at `~/.config/systemd/user/kai-whatsapp.service`:
+On Linux servers, create a systemd service at `~/.config/systemd/user/afc-whatsapp.service`:
 
 ```ini
 [Unit]
@@ -886,16 +886,16 @@ Enable and start:
 systemctl --user daemon-reload
 
 # Enable (start on boot)
-systemctl --user enable kai-whatsapp
+systemctl --user enable afc-whatsapp
 
 # Start now
-systemctl --user start kai-whatsapp
+systemctl --user start afc-whatsapp
 
 # Check status
-systemctl --user status kai-whatsapp
+systemctl --user status afc-whatsapp
 
 # View logs
-journalctl --user -u kai-whatsapp -f
+journalctl --user -u afc-whatsapp -f
 ```
 
 ### 8.5 Auto-Restart on Crash
@@ -904,7 +904,7 @@ Both `launchd` (with `KeepAlive`) and `systemd` (with `Restart=on-failure`) auto
 
 ```bash
 #!/bin/bash
-# restart-kai.sh -- Auto-restart loop
+# restart-afc.sh -- Auto-restart loop
 while true; do
     echo "[$(date)] Starting Claude Code..."
     cd ~/Desktop/ai-fitness-coach
@@ -959,11 +959,11 @@ WhatsApp rate-limits pairing attempts. Wait 10-15 minutes, then try again. If QR
 
 ### 9.2 Permission Issues
 
-**Problem: "Permission denied" when Claude tries to run kai-cli.py.**
+**Problem: "Permission denied" when Claude tries to run fitness-cli.py.**
 
 Make sure the script is executable:
 ```bash
-chmod +x ~/Desktop/ai-fitness-coach/src/kai-cli.py
+chmod +x ~/Desktop/ai-fitness-coach/src/fitness-cli.py
 ```
 
 **Problem: Claude Code asks for permission to run every Bash command.**
@@ -984,7 +984,7 @@ For automated operation, the WhatsApp plugin tools should be pre-approved in `~/
 }
 ```
 
-For Bash commands (like running kai-cli.py), you will need to approve them interactively or add specific patterns to the allow list.
+For Bash commands (like running fitness-cli.py), you will need to approve them interactively or add specific patterns to the allow list.
 
 ### 9.3 Database Issues
 
@@ -992,7 +992,7 @@ For Bash commands (like running kai-cli.py), you will need to approve them inter
 
 Re-initialize the database:
 ```bash
-python3 ~/Desktop/ai-fitness-coach/src/db_manager.py ~/Desktop/ai-fitness-coach/data/kai_health.db
+python3 ~/Desktop/ai-fitness-coach/src/db_manager.py ~/Desktop/ai-fitness-coach/data/fitness.db
 ```
 
 **Problem: Database file not found.**
@@ -1018,7 +1018,7 @@ tail -30 ~/Desktop/ai-fitness-coach/cron.log
 
 **Step 3: Run the script manually to see errors.**
 ```bash
-KAI_DIR=~/Desktop/ai-fitness-coach ~/Desktop/ai-fitness-coach/cron/workout-reminder.sh
+AFC_DIR=~/Desktop/ai-fitness-coach ~/Desktop/ai-fitness-coach/cron/workout-reminder.sh
 ```
 
 **Step 4: Check PATH.**
@@ -1050,13 +1050,13 @@ If `requireMention` is `true`, the bot only responds when @mentioned. Set it to 
 
 For DMs, the sender must be on the allowlist or go through pairing.
 
-**Check 4: Is `KAI_WHATSAPP_CHAT_ID` correct in `.env`?**
+**Check 4: Is `AFC_WHATSAPP_CHAT_ID` correct in `.env`?**
 
 The chat ID must exactly match the group JID (e.g., `120363424405607157@g.us`).
 
 ### 9.6 Claude Code Not Finding the Group Config
 
-If Claude responds but does not have the Kai personality or tool instructions:
+If Claude responds but does not have the coach personality or tool instructions:
 
 1. Verify the config file exists at the correct path:
    ```bash
@@ -1076,8 +1076,8 @@ If Claude responds but does not have the Kai personality or tool instructions:
 |---|---|---|
 | `command not found: claude` | Claude Code not installed or not in PATH | `npm install -g @anthropic-ai/claude-code` |
 | `command not found: bun` | Bun not installed | `curl -fsSL https://bun.sh/install \| bash` |
-| `KAI_WHATSAPP_CHAT_ID is not set` | Missing from `.env` | Add the group ID to `.env` |
-| `No such file or directory: kai-cli.py` | Wrong path in config.md | Update paths in the group config to use absolute paths |
+| `AFC_WHATSAPP_CHAT_ID is not set` | Missing from `.env` | Add the group ID to `.env` |
+| `No such file or directory: fitness-cli.py` | Wrong path in config.md | Update paths in the group config to use absolute paths |
 | `440 disconnect` | Two WhatsApp sessions running simultaneously | Kill the extra process: `pkill -f "bun.*whatsapp"` |
 | `database is locked` | Another process is writing to SQLite | Wait and retry; SQLite handles this automatically |
 
@@ -1096,7 +1096,7 @@ If Claude responds but does not have the Kai personality or tool instructions:
 | Group memory | `~/.claude/channels/whatsapp/groups/<id>/memory.md` | Conversation history for a group |
 | Project .env | `<project>/. env` | Project environment variables |
 | User profile | `<project>/config/profile.json` | Fitness goals, nutrition targets, equipment |
-| Database | `<project>/data/kai_health.db` | All logged fitness data |
+| Database | `<project>/data/fitness.db` | All logged fitness data |
 | Cron log | `<project>/cron.log` | Output from automated reminders |
 
 ### Essential Commands
@@ -1106,9 +1106,9 @@ If Claude responds but does not have the Kai personality or tool instructions:
 claude --channels plugin:whatsapp@whatsapp-claude-plugin
 
 # Run the fitness CLI directly
-python3 src/kai-cli.py quick-status
-python3 src/kai-cli.py suggest-workout --duration 40
-python3 src/kai-cli.py log-weight 70.5
+python3 src/fitness-cli.py quick-status
+python3 src/fitness-cli.py suggest-workout --duration 40
+python3 src/fitness-cli.py log-weight 70.5
 
 # Manage WhatsApp access (inside Claude Code)
 /whatsapp:access
