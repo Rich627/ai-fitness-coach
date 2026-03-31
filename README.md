@@ -106,7 +106,7 @@ Here is what a typical interaction looks like in your WhatsApp group:
 
 <p align="center">
   <img src="assets/demo/02-food.jpg" alt="Food photo analysis with automatic nutrition breakdown" width="300">
-  <img src="assets/demo/03-weight.jpg" alt="Remaining daily targets and personalized eating advice" width="300">
+  <img src="assets/demo/04-workout.jpg" alt="AI-generated workout plan based on sleep, recovery, and equipment" width="300">
 </p>
 
 ### Weight Tracking & Smart Workout Plan
